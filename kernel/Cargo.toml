@@ -1,0 +1,6 @@
+[package]
+name = "murke"
+version = "0.1.0"
+authors = ["Marek Kaput <marek.kaput@outlook.com>"]
+
+[dependencies]

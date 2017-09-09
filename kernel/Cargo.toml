@@ -1,5 +1,5 @@
 [package]
-name = "murke"
+name = "kernel"
 version = "0.1.0"
 authors = ["Marek Kaput <marek.kaput@outlook.com>"]
 

@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := all
+
 -include config.mk
 include misc/mk/defaults.mk
 include misc/mk/paths.mk
@@ -9,7 +11,7 @@ include misc/mk/parts/*.mk
 
 all: kernel
 
+kernel: $(KERNEL_BIN)
+
 clean:
 	rm -rfd $(BUILD_DIR)
-
-kernel: $(KERNEL_BIN)

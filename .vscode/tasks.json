@@ -1,9 +1,5 @@
 {
     "version": "2.0.0",
-    "presentation": {
-        "reveal": "always",
-        "panel": "new"
-    },
     "tasks": [
         {
             "taskName": "make build",

@@ -30,9 +30,7 @@ header_start:
     ; must have a32-bit unsigned sum of zero.
     dd 0x100000000 - (MB_MAGIC + MB_ARCH + MB_HEADER_LEN)
 
-    ; insert optional multiboot tags here
-
-    ; required end tag
+    ; Required end tag
     dw 0    ; type
     dw 0    ; flags
     dd 8    ; size

@@ -20,7 +20,8 @@
             "command": "make",
             "args": [
                 "run"
-            ]
+            ],
+            "problemMatcher": []
         },
         {
             "taskName": "make clean",

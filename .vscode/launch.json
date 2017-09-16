@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) rundbg x86_64, break krnl_start",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/boot/x86_64/kernel.bin",
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerServerAddress": "localhost:1234",
+            "setupCommands": [
+                {
+                    "text": "break krnl_start",
+                    "description": "break on kernel start",
+                    "ignoreFailures": false
+                }
+            ],
+            "stopAtEntry": true,
+            "launchCompleteCommand": "None"
+        }
+    ]
+}

@@ -9,9 +9,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "args": [
-
-            ],
+            "args": [],
             "problemMatcher": []
         },
         {
@@ -24,12 +22,22 @@
             "problemMatcher": []
         },
         {
+            "taskName": "make rundbg",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "rundbg"
+            ],
+            "problemMatcher": []
+        },
+        {
             "taskName": "make clean",
             "type": "shell",
             "command": "make",
             "args": [
                 "clean"
-            ]
+            ],
+            "problemMatcher": []
         },
         {
             "taskName": "cargo build",

@@ -14,4 +14,10 @@ SECTIONS {
     .text : {
         *(.text)
     }
+
+	/* Read-write data (uninitialized) and stack */
+	.bss : {
+		*(COMMON)
+		*(.bss)
+	}
 }

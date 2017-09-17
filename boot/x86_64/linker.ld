@@ -1,5 +1,5 @@
 /* Set kernel entry point */
-ENTRY(krnl_start)
+ENTRY(krnl_start32)
 
 SECTIONS {
     /* Set load address of first section to 1MiB,
@@ -20,4 +20,9 @@ SECTIONS {
 		*(COMMON)
 		*(.bss)
 	}
+
+    /* Read-only data */
+    .rodata : {
+        *(.rodata)
+    }
 }

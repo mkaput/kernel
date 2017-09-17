@@ -193,12 +193,14 @@ error:
     hlt
 
 section .rodata
+; Global Descriptor Table (64-bit)
 GDT64:              dq 0 ; zero entry
 .code:              equ $ - GDT64
                     dq (1<<43) | (1<<44) | (1<<47) | (1<<53) ; code segment
 .pointer:           dw $ - GDT64 - 1
                     dq GDT64
 
+; Error messages
 ERR_HEAD:           db  "Kernel boot error: ",0
 ERR_NO_MULTIBOOT:   db  "Attempt to boot from non-Multiboot compliant "
                     db  "bootloader.",0

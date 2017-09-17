@@ -10,7 +10,7 @@
                 "isDefault": true
             },
             "args": [],
-            "problemMatcher": []
+            "problemMatcher": "$rustc"
         },
         {
             "taskName": "make run",
@@ -19,7 +19,7 @@
             "args": [
                 "run"
             ],
-            "problemMatcher": []
+            "problemMatcher": "$rustc"
         },
         {
             "taskName": "make rundbg",
@@ -28,7 +28,7 @@
             "args": [
                 "rundbg"
             ],
-            "problemMatcher": []
+            "problemMatcher": "$rustc"
         },
         {
             "taskName": "make clean",
@@ -40,35 +40,14 @@
             "problemMatcher": []
         },
         {
-            "taskName": "cargo build",
+            "taskName": "cargo fmt",
             "type": "shell",
             "command": "cargo",
             "args": [
-                "build"
+                "fmt",
+                "--all"
             ],
-            "group": "build",
-            "problemMatcher": "$rustc"
-        },
-        {
-            "taskName": "cargo test",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "test"
-            ],
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "problemMatcher": "$rustc"
-        },
-        {
-            "taskName": "cargo clean",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "clean"
-            ]
+            "problemMatcher": []
         }
     ]
 }

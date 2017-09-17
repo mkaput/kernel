@@ -16,14 +16,19 @@ modern Linux-based systems on x86_64 architectures.**
     rustup install "$(cat rust-toolchain)"
     ```
 
-3. Install [**xargo**](https://github.com/japaric/xargo)
+3. Install required Rust toolchain components.
+    ```sh
+    rustup component add rust-src
+    ```
+
+4. Install [**xargo**](https://github.com/japaric/xargo)
     ```sh
     cargo install xargo
     ```
 
    You might also want to install `rustfmt-nightly`.
 
-4. Install:
+5. Install:
 
     - [**NASM**](http://www.nasm.us/)
     - **GNU Make**

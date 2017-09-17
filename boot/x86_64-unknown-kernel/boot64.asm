@@ -5,9 +5,14 @@
 ; https://os.phil-opp.com/
 
 global krnl_start64
+extern krnl_main
 
 section .text
 bits 64
+
+; 64-bit Kernel entry point
+;
+; Performs long mode-related initialization and calls krnl_main.
 krnl_start64:
     ; load 0 into all data segment registers
     xor ax, ax
@@ -17,7 +22,8 @@ krnl_start64:
     mov fs, ax
     mov gs, ax
 
-    ; print `OKAY` to screen
-    mov rax, 0x2f592f412f4b2f4f
-    mov qword [0xb8000], rax
+    ; start real kernel
+    call krnl_main
+
+    ; in case main exits...
     hlt

@@ -4,7 +4,7 @@
 include misc/mk/defaults.mk
 include misc/mk/paths.mk
 
-include boot/$(ARCH)/make.mk
+include boot/$(TARGET)/make.mk
 include misc/mk/parts/*.mk
 
 .PHONY: all clean kernel

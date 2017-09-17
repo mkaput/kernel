@@ -7,21 +7,31 @@
 ## single arch. Otherwise strange things may happen.
 
 ############################################################
-## Architecture configuration
+## Target configuration
 
-# CPU architecture for which the kernel will be compiled.
+# Target triple for which the kernel will be compiled.
 # Possible values:
-# * x86_64 - AMD64 / Intel EM64T
-export ARCH ?= x86_64
+# * x86_64-unknown-kernel - AMD64 / Intel EM64T
+export TARGET ?= x86_64-unknown-kernel
+
+# Cargo build mode for Rust code
+# Possible values:
+# * debug
+# * release
+export CARGO_MODE ?= debug
 
 ############################################################
 ## Build tools
+
+# Cargo executable name
+# We use xargo for cross-compiling core library.
+export CARGO ?= xargo
 
 # NASM executable name
 export NASM ?= nasm
 
 # GRUB mkrescue
-GRUB_MKRESCUE ?= grub2-mkrescue
+export GRUB_MKRESCUE ?= grub2-mkrescue
 
 # QEMU used for `run` target
-QEMU_RUN ?= qemu-system-$(ARCH)
+export QEMU_RUN ?= qemu-system-x86_64

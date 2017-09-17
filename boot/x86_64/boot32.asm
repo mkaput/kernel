@@ -1,6 +1,6 @@
 ; Kernel entry point for x86_64 arch, 32-bit initialization code
 ;
-; Some code is based on snippets from these pages:
+; Some code is based on snippets (including commentary) from these pages:
 ; http://wiki.osdev.org/Setting_Up_Long_Mode
 ; https://os.phil-opp.com/
 
@@ -9,6 +9,10 @@ extern krnl_start64
 
 section .bss
 align 4096
+; Page tables need to be page-aligned as the bits 0-11 are used for flags.
+; By putting these tables at the beginning of .bss, the linker can just
+; page align the whole section and we don't have unused padding bytes in
+; between.
 P4_TABLE:           ; PML4 table
     resb 4096
 P3_TABLE:           ; PDP table

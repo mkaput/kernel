@@ -4,12 +4,12 @@
 ; https://www.gnu.org/software/grub/manual/multiboot2/
 ; http://git.savannah.gnu.org/cgit/grub.git/tree/doc/multiboot2.h?h=multiboot2
 
+%define MB_MAGIC       0xE85250D6
+%define MB_ARCH        0
+%define MB_HEADER_LEN  (header_end - header_start)
+
 section .multiboot
 header_start:
-    %define MB_MAGIC       0xE85250D6
-    %define MB_ARCH        0
-    %define MB_HEADER_LEN  (header_end - header_start)
-
     ; The field 'magic' is the magic number identifying the header,
     ; which must be the hexadecimal value 0xE85250D6.
     dd MB_MAGIC

@@ -1,4 +1,4 @@
-/* Set kernel entry point */
+OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(krnl_start32)
 
 SECTIONS {

@@ -1,10 +1,6 @@
 ; Kernel entry point for x86_64 arch, 64-bit initialization code
 ;
 ; THERE ARE NO CALLING CONVENTIONS IN THIS FILE.
-;
-; Some code is based on snippets from these pages:
-; http://wiki.osdev.org/Setting_Up_Long_Mode
-; https://os.phil-opp.com/
 
 global krnl_start64
 extern krnl_main

@@ -1,10 +1,6 @@
 ; Kernel entry point for x86_64 arch, 32-bit initialization code
 ;
 ; THERE ARE NO CALLING CONVENTIONS IN THIS FILE.
-;
-; Some code is based on snippets (including commentary) from these pages:
-; http://wiki.osdev.org/Setting_Up_Long_Mode
-; https://os.phil-opp.com/
 
 global krnl_start32
 extern krnl_start64
@@ -13,15 +9,27 @@ extern krnl_start64
 
 section .bss
 align 4096
+; Page tables
+;
+; In long mode, x86 uses a page size of 4096 bytes and a 4 level page table that consists of:
+; P4) the Page-Map Level-4 Table (PML4),
+; P3) the Page-Directory Pointer Table (PDP),
+; P2) the Page-Directory Table (PD),
+; P1) and the Page Table (PT).
+;
+; In the x86 architecture, the page tables are hardware walked, so the CPU will look at the table
+; on its own when it needs a translation.
+;
 ; Page tables need to be page-aligned as the bits 0-11 are used for flags. By putting these tables
 ; at the beginning of .bss, the linker can just page align the whole section and we don't have
 ; unused padding bytes in between.
-P4_TABLE:           ; PML4 table
-    resb 4096
-P3_TABLE:           ; PDP table
-    resb 4096
-P2_TABLE:           ; PD table
-    resb 4096
+P4_TABLE:   resb 4096
+P3_TABLE:   resb 4096
+P2_TABLE:   resb 4096
+
+; Stack
+;
+; We will initially use simple 64 byte stack for booting use. It will be resized further.
 STACK_BOTTOM:
     resb 64
 STACK_TOP:
@@ -191,7 +199,7 @@ error:
     cmp byte [esi], 0
     jnz .head_putc
 
-    ; print message, with white foreground color
+    ; Print message, with white foreground color
     mov esi, edx
 .msg_putc:
     movsb
@@ -200,13 +208,14 @@ error:
     cmp byte [esi], 0
     jnz .msg_putc
 
-    ; it's time to end our journey...
+    ; It's time to end our journey...
     hlt
 
 section .rodata
 ; Global Descriptor Table (64-bit)
 ;
-; It's used for segmentation, though we won't use segementation. But it's required anyway.
+; It's used for segmentation, though we won't use segementation.
+; But it's required anyway so we do it.
 GDT64:              dq 0 ; zero entry
 .code:              equ $ - GDT64   ; code segment
                     dq (1<<43) | (1<<44) | (1<<47)  | (1<<53)

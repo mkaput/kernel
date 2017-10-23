@@ -1,3 +1,5 @@
+#![feature(asm)]
+#![feature(inclusive_range_syntax)]
 #![feature(lang_items)]
 #![no_std]
 
@@ -8,19 +10,26 @@ extern crate rlibc;
 pub extern "C" fn krnl_main() {
     // ATTENTION: we have a very small stack and no guard page
 
-    let hello = b"Hello World!";
-    let color_byte = 0x0f;
+    loop {
+        for color_byte in 0x00u8...0xffu8 {
+            hello_world(color_byte);
+            for i in 0..75000 {
+                unsafe {
+                    asm!("NOP");
+                }
+            }
+        }
+    }
+}
 
-    let mut hello_colored = [color_byte; 24];
+fn hello_world(color_byte: u8) {
+    let hello = b" Hello World! ";
+    let mut hello_colored = [color_byte; 28];
     for (i, char_byte) in hello.into_iter().enumerate() {
         hello_colored[i * 2] = *char_byte;
     }
-
-    // write `Hello World!` to the center of the VGA text buffer
-    let buffer_ptr = (0xb8000 + 1988) as *mut _;
+    let buffer_ptr = (0xb8000 + 1986) as *mut _;
     unsafe { *buffer_ptr = hello_colored };
-
-    loop {}
 }
 
 #[lang = "eh_personality"]

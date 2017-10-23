@@ -11,9 +11,9 @@ pub extern "C" fn krnl_main() {
     // ATTENTION: we have a very small stack and no guard page
 
     loop {
-        for color_byte in 0x00u8...0xffu8 {
+        for color_byte in 0x00u8..=0xffu8 {
             hello_world(color_byte);
-            for i in 0..75000 {
+            for _ in 0..75000 {
                 unsafe {
                     asm!("NOP");
                 }

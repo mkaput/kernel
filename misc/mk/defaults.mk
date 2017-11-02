@@ -35,3 +35,6 @@ export GRUB_MKRESCUE ?= grub2-mkrescue
 
 # QEMU used for `run` target
 export QEMU_RUN ?= qemu-system-x86_64
+
+# Gitbook used for building docs
+export GITBOOK ?= gitbook

@@ -1,0 +1,8 @@
+{
+    "root": "./book",
+    "title": "Foundation of general purpose x86-64 operating system",
+    "author": "Marek Kaput",
+    "plugins": [
+        "js-sequence-diagram-full"
+    ]
+}

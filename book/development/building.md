@@ -1,4 +1,4 @@
-# Building guidelines
+# Building the kernel
 
 Compilation of Rust code is managed by Cargo, and building rest of files and
 creating distribution packages is managed by Make. The root `Makefile` contains
@@ -15,3 +15,4 @@ are stored in `/misc/mk/defaults.mk`. Prior to this file, another one,
 for these variables there. There is also possibility to override them via
 environment variables. Mind to use `?=` operator when assigning variables in
 overrides file, so they can be still overriden through environment.
+

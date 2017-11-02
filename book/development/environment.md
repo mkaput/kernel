@@ -1,9 +1,7 @@
-# Development guidelines
-
-## Setting up dev environment
+# Setting up development environment
 
 **Developing of the kernel is currently officially supported only on relatively
-modern Linux-based systems on x86_64 architectures.**
+modern Linux-based systems on x86-64 architectures.**
 
 1. Install [**rustup**](https://www.rustup.rs/)
     ```sh

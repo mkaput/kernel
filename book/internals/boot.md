@@ -12,9 +12,9 @@ GRUB-->>CDROM: Load grub.cfg
 Note over GRUB: Show boot screen
 GRUB-->>Kernel: Load kernel.bin
 Note over GRUB: Fill Multiboot data
-GRUB->Kernel: Call krnl_start32
+GRUB->Kernel: Jump to krnl_start32
 Note over Kernel: Enter long mode
-Note over Kernel: Call krnl_start64
+Note over Kernel: Far jump to krnl_start64
 Note over Kernel: Call krnl_main
 ```
 

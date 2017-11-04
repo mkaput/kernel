@@ -5,7 +5,7 @@ The kernel is distributed as bootable image that can be used as LiveCD or LiveUS
 ## Sequence diagram
 
 ```sequence
-Title: Boot process
+Title: Entering krnl_main
 BIOS->CDROM: Read 1st\nsector and\nrun it
 CDROM->GRUB: Read rest of\nthe image and\nrun GRUB Kernel
 GRUB-->>BIOS: Fetch system information
@@ -13,7 +13,7 @@ Note over GRUB: Enter protected mode
 GRUB-->>CDROM: Load grub.cfg
 Note over GRUB: Show boot screen
 GRUB-->>Kernel: Load kernel.bin
-Note over GRUB: Fill Multiboot data
+Note over GRUB: Fill Multiboot\nboot information
 GRUB->Kernel: Jump to krnl_start32
 Note over Kernel: Enter long mode
 Note over Kernel: Far jump to krnl_start64

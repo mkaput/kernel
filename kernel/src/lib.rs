@@ -1,40 +1,36 @@
 #![feature(asm)]
+#![feature(const_fn)]
+#![feature(const_unique_new)]
 #![feature(inclusive_range_syntax)]
 #![feature(lang_items)]
+#![feature(unique)]
 #![no_std]
 
 #[allow(unused_extern_crates)]
 extern crate rlibc;
+extern crate spin;
+extern crate volatile;
 
+mod dev;
+mod drv;
+
+use dev::console::Console;
+
+/// Real kernel entry point
 #[no_mangle]
-pub extern "C" fn krnl_main() {
+pub extern "C" fn krnl_main(mb_info: usize) {
     // ATTENTION: we have a very small stack and no guard page
 
-    loop {
-        for color_byte in 0x00u8..=0xffu8 {
-            hello_world(color_byte);
-            for _ in 0..75000 {
-                unsafe {
-                    asm!("NOP");
-                }
-            }
-        }
-    }
+    drv::gfx::vga::text_buffer::TEXT_BUFFER_CONSOLE.lock().clear();
+
+    loop {}
 }
 
-fn hello_world(color_byte: u8) {
-    let hello = b" Hello World! ";
-    let mut hello_colored = [color_byte; 28];
-    for (i, char_byte) in hello.into_iter().enumerate() {
-        hello_colored[i * 2] = *char_byte;
-    }
-    let buffer_ptr = (0xb8000 + 1986) as *mut _;
-    unsafe { *buffer_ptr = hello_colored };
-}
-
+/// TODO: The heck is this?
 #[lang = "eh_personality"]
 extern "C" fn eh_personality() {}
 
+/// Kernel panic handler
 #[lang = "panic_fmt"]
 #[no_mangle]
 pub extern "C" fn panic_fmt() -> ! {

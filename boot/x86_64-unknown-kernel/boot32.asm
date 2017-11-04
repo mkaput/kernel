@@ -7,33 +7,6 @@ extern krnl_start64
 
 %define MULTIBOOT_MAGIC 0x36d76289
 
-section .bss
-align 4096
-; Page tables
-;
-; In long mode, x86 uses a page size of 4096 bytes and a 4 level page table that consists of:
-; P4) the Page-Map Level-4 Table (PML4),
-; P3) the Page-Directory Pointer Table (PDP),
-; P2) the Page-Directory Table (PD),
-; P1) and the Page Table (PT).
-;
-; In the x86 architecture, the page tables are hardware walked, so the CPU will look at the table
-; on its own when it needs a translation.
-;
-; Page tables need to be page-aligned as the bits 0-11 are used for flags. By putting these tables
-; at the beginning of .bss, the linker can just page align the whole section and we don't have
-; unused padding bytes in between.
-P4_TABLE:   resb 4096
-P3_TABLE:   resb 4096
-P2_TABLE:   resb 4096
-
-; Stack
-;
-; We will initially use simple 64 byte stack for booting use. It will be resized further.
-STACK_BOTTOM:
-    resb 64
-STACK_TOP:
-
 section .text
 bits 32
 
@@ -44,6 +17,11 @@ bits 32
 krnl_start32:
     ; Initialize basic stack
     mov esp, STACK_TOP
+
+    ; Save pointer to Multiboot2 information table. We will restore it in 64-bit code,
+    ; where we can't simply pop dwords, so we additionally push zeroed dword as alignment.
+    push dword 0
+    push ebx
 
     ; Run basic system checks and initialization
     call check_multiboot
@@ -210,6 +188,33 @@ error:
 
     ; It's time to end our journey...
     hlt
+
+section .bss
+align 4096
+; Page tables
+;
+; In long mode, x86 uses a page size of 4096 bytes and a 4 level page table that consists of:
+; P4) the Page-Map Level-4 Table (PML4),
+; P3) the Page-Directory Pointer Table (PDP),
+; P2) the Page-Directory Table (PD),
+; P1) and the Page Table (PT).
+;
+; In the x86 architecture, the page tables are hardware walked, so the CPU will look at the table
+; on its own when it needs a translation.
+;
+; Page tables need to be page-aligned as the bits 0-11 are used for flags. By putting these tables
+; at the beginning of .bss, the linker can just page align the whole section and we don't have
+; unused padding bytes in between.
+P4_TABLE:   resb 4096
+P3_TABLE:   resb 4096
+P2_TABLE:   resb 4096
+
+; Stack
+;
+; We will initially use simple 64 byte stack for booting use. It will be resized further.
+STACK_BOTTOM:
+    resb 64
+STACK_TOP:
 
 section .rodata
 ; Global Descriptor Table (64-bit)

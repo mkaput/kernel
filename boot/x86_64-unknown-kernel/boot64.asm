@@ -21,5 +21,10 @@ krnl_start64:
     mov fs, ax
     mov gs, ax
 
+    ; Restore pointer to Multiboot2 information table.
+    ; We store it in RDI, which is used as first pointer argument in System V ABI,
+    ; therefore we can easily use it in Rust code.
+    pop rdi
+
     call krnl_main      ; Start real kernel
     hlt                 ; In case main exits... (shouldn't happen)

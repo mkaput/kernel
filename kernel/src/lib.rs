@@ -16,6 +16,7 @@ mod drv;
 
 use dev::output_serial::OutputSerial;
 use dev::text_video::TextVideo;
+use dev::text_video::TextColor::*;
 use drv::gfx::vga::text_buffer::VGA_TEXT_VIDEO;
 
 /// Real kernel entry point
@@ -31,10 +32,36 @@ pub extern "C" fn krnl_main(_mb_info: usize) {
 
         video.put_str("early console works\n");
 
-        for _ in 0..50 {
-            video.put_str("hello\n");
-            for _ in 0..60000 {
-                unsafe {asm!("nop");}
+        let mut s = video.current_style();
+        let colors = [
+            Black,
+            Blue,
+            Green,
+            Cyan,
+            Red,
+            Magenta,
+            Brown,
+            LightGray,
+            DarkGray,
+            LightBlue,
+            LightGreen,
+            LightCyan,
+            LightRed,
+            Pink,
+            Yellow,
+            White,
+        ];
+        for &bg in colors.iter().cycle() {
+            for &fg in colors.iter() {
+                s.foreground = fg;
+                s.background = bg;
+                video.set_current_style(s);
+                video.put_byte(b'+');
+                for _ in 0..1000 {
+                    unsafe {
+                        asm!("nop");
+                    }
+                }
             }
         }
     }

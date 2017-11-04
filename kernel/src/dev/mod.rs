@@ -1,3 +1,4 @@
 //! Device abstractions
 
-pub mod console;
+pub mod output_serial;
+pub mod text_video;

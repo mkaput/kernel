@@ -1,7 +1,6 @@
 #![feature(asm)]
 #![feature(const_fn)]
 #![feature(const_unique_new)]
-#![feature(inclusive_range_syntax)]
 #![feature(lang_items)]
 #![feature(unique)]
 #![no_std]
@@ -10,18 +9,35 @@
 extern crate rlibc;
 extern crate spin;
 extern crate volatile;
+extern crate x86_64;
 
 mod dev;
 mod drv;
 
-use dev::console::Console;
+use dev::output_serial::OutputSerial;
+use dev::text_video::TextVideo;
+use drv::gfx::vga::text_buffer::VGA_TEXT_VIDEO;
 
 /// Real kernel entry point
 #[no_mangle]
-pub extern "C" fn krnl_main(mb_info: usize) {
+pub extern "C" fn krnl_main(_mb_info: usize) {
     // ATTENTION: we have a very small stack and no guard page
 
-    drv::gfx::vga::text_buffer::TEXT_BUFFER_CONSOLE.lock().clear();
+    {
+        // Set up early console ASAP
+        let mut video = VGA_TEXT_VIDEO.lock();
+        video.enable_cursor();
+        video.clear();
+
+        video.put_str("early console works\n");
+
+        for _ in 0..50 {
+            video.put_str("hello\n");
+            for _ in 0..60000 {
+                unsafe {asm!("nop");}
+            }
+        }
+    }
 
     loop {}
 }

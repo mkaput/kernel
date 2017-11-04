@@ -7,7 +7,7 @@
 
 ### Kernel internals
 
-* [Boot process](internals/boot.md)
+* [Booting the kernel](internals/boot.md)
 
 ### Development
 

@@ -14,6 +14,8 @@ extern crate x86_64;
 mod dev;
 mod drv;
 
+use core::fmt::Write;
+
 use dev::output_serial::OutputSerial;
 use dev::text_video::TextVideo;
 use dev::text_video::TextColor::*;
@@ -51,13 +53,15 @@ pub extern "C" fn krnl_main(_mb_info: usize) {
             Yellow,
             White,
         ];
+        let mut i = 0;
         for &bg in colors.iter().cycle() {
             for &fg in colors.iter() {
                 s.foreground = fg;
                 s.background = bg;
                 video.set_current_style(s);
-                video.put_byte(b'+');
-                for _ in 0..1000 {
+                write!(video.fmt(), "{:07} ", i);
+                i += 1;
+                for _ in 0..20000 {
                     unsafe {
                         asm!("nop");
                     }

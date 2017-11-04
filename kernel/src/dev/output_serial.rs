@@ -1,3 +1,5 @@
+use core::fmt;
+
 /// Common interface for output serials for messaging text
 pub trait OutputSerial {
     /// Print single ASCII character
@@ -15,6 +17,18 @@ pub trait OutputSerial {
             self.put_byte(byte)
         }
     }
+
+    /// Returns wrapper that implements `fmt::Write` trait
+    fn fmt<'a, 'b>(&'a mut self) -> OutputSerialFmt<'b, Self> where 'a: 'b {
+        OutputSerialFmt(self)
+    }
 }
 
-// TODO Implement fmt::Write for T: OutputSerial
+pub struct OutputSerialFmt<'a, T>(&'a mut T) where T: 'a + OutputSerial + ? Sized;
+
+impl<'a, T> fmt::Write for OutputSerialFmt<'a, T> where T: 'a + OutputSerial {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.0.put_str(s);
+        Ok(())
+    }
+}

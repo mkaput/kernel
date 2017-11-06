@@ -147,6 +147,27 @@ impl VgaTextVideo {
         unsafe { self.buffer.as_mut() }
     }
 
+    fn raw_put_byte(&mut self, char: u8) {
+        if char == b'\n' {
+            self.newline();
+        } else {
+            let screen_char = ScreenChar {
+                char,
+                style: self.current_style,
+            };
+            let mut cur = self.cursor;
+
+            self.buffer()[cur.row][cur.col].write(screen_char);
+
+            if cur.col == SCREEN_WIDTH - 1 {
+                self.newline()
+            } else {
+                cur.col += 1;
+                self.cursor = cur;
+            }
+        }
+    }
+
     fn newline(&mut self) {
         let mut cur = self.cursor;
 
@@ -168,38 +189,37 @@ impl VgaTextVideo {
             }
 
             cur.col = 0;
-            self.set_cursor(cur);
+            self.cursor = cur;
         } else {
             cur.row += 1;
             cur.col = 0;
-            self.set_cursor(cur);
+            self.cursor = cur;
+        }
+    }
+
+    fn update_cursor(&mut self) {
+        let pos = (self.cursor.row * SCREEN_WIDTH + self.cursor.col) as u16;
+        unsafe {
+            outb(0x3d4, 0x0f);
+            outb(0x3d5, (pos & 0xff) as u8);
+            outb(0x3d4, 0x0e);
+            outb(0x3d5, ((pos >> 8) & 0xff) as u8);
         }
     }
 }
 
 impl OutputSerial for VgaTextVideo {
     fn put_byte(&mut self, char: u8) {
-        if char == b'\n' {
-            self.newline();
-            return;
-        }
-
-        let screen_char = ScreenChar {
-            char,
-            style: self.current_style,
-        };
-        let mut cur = self.cursor;
-        self.buffer()[cur.row][cur.col].write(screen_char);
-
-        if cur.col == SCREEN_WIDTH - 1 {
-            self.newline()
-        } else {
-            cur.col += 1;
-            self.set_cursor(cur);
-        }
+        self.raw_put_byte(char);
+        self.update_cursor()
     }
 
-    // TODO Optimize put_str (don't move cursor after every character)
+    fn put_str(&mut self, s: &str) {
+        for char in s.bytes() {
+            self.raw_put_byte(char);
+        }
+        self.update_cursor()
+    }
 }
 
 impl TextVideo for VgaTextVideo {
@@ -236,14 +256,7 @@ impl TextVideo for VgaTextVideo {
 
     fn set_cursor(&mut self, new_cursor: Cursor) {
         self.cursor = new_cursor;
-
-        let pos = (new_cursor.row * SCREEN_WIDTH + new_cursor.col) as u16;
-        unsafe {
-            outb(0x3d4, 0x0f);
-            outb(0x3d5, (pos & 0xff) as u8);
-            outb(0x3d4, 0x0e);
-            outb(0x3d5, ((pos >> 8) & 0xff) as u8);
-        }
+        self.update_cursor();
     }
 
     fn current_style(&self) -> TextStyle {

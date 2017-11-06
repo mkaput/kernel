@@ -53,21 +53,15 @@ pub extern "C" fn krnl_main(_mb_info: usize) {
             Yellow,
             White,
         ];
-        let mut i = 0;
-        for &bg in colors.iter().cycle() {
+        for &bg in colors.iter() {
             for &fg in colors.iter() {
                 s.foreground = fg;
                 s.background = bg;
                 video.set_current_style(s);
-                write!(video.fmt(), "{:07} ", i);
-                i += 1;
-                for _ in 0..20000 {
-                    unsafe {
-                        asm!("nop");
-                    }
-                }
+                write!(video.fmt(), "#").unwrap();
             }
         }
+        writeln!(video.fmt()).unwrap();
     }
 
     loop {}

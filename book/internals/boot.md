@@ -9,6 +9,7 @@ Title: Entering krnl_main
 BIOS->CDROM: Read 1st\nsector and\nrun it
 CDROM->GRUB: Read rest of\nthe image and\nrun GRUB Kernel
 GRUB-->>BIOS: Fetch system information
+BIOS-->>GRUB: System information
 Note over GRUB: Enter protected mode
 GRUB-->>CDROM: Load grub.cfg
 Note over GRUB: Show boot screen

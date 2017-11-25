@@ -211,9 +211,9 @@ P2_TABLE:   resb 4096
 
 ; Stack
 ;
-; We will initially use simple 64 byte stack for booting use. It will be resized further.
+; We will initially use simple 16kB (four pages) stack for booting use.
 STACK_BOTTOM:
-    resb 64
+    resb 4096 * 4
 STACK_TOP:
 
 section .rodata

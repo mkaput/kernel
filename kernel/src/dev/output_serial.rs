@@ -19,14 +19,22 @@ pub trait OutputSerial {
     }
 
     /// Returns wrapper that implements `fmt::Write` trait
-    fn fmt<'a, 'b>(&'a mut self) -> OutputSerialFmt<'b, Self> where 'a: 'b {
-        OutputSerialFmt(self)
+    fn writer<'a, 'b>(&'a mut self) -> OutputSerialWriter<'b, Self>
+    where
+        'a: 'b,
+    {
+        OutputSerialWriter(self)
     }
 }
 
-pub struct OutputSerialFmt<'a, T>(&'a mut T) where T: 'a + OutputSerial + ? Sized;
+pub struct OutputSerialWriter<'a, T>(&'a mut T)
+where
+    T: 'a + OutputSerial + ?Sized;
 
-impl<'a, T> fmt::Write for OutputSerialFmt<'a, T> where T: 'a + OutputSerial {
+impl<'a, T> fmt::Write for OutputSerialWriter<'a, T>
+where
+    T: 'a + OutputSerial,
+{
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.0.put_str(s);
         Ok(())

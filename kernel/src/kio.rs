@@ -16,12 +16,9 @@ use drv::gfx::vga::text_buffer::VGA_TEXT_VIDEO;
 /// may be necessary to flush output buffer to ensure the output is emitted immediately.
 /// There is no standard way for doing it though.
 ///
-/// Use the [`format!`] syntax to write data to the standard output.
-/// See [`core::fmt`] for more information.
+/// Use the `format!` syntax to write data to the standard output.
 ///
-/// [`kprintln!`]: ./macro.println.html
-/// [`format!`]: ../core/macro.format.html
-/// [`core::fmt`]: ../core/fmt/
+/// [`kprintln!`]: ./macro.kprintln.html
 ///
 /// # Panics
 ///
@@ -48,14 +45,10 @@ macro_rules! kprint {
 /// Macro for printing to current kernel output serial device, with a newline. This is the
 /// preferred way for doing kernel logging.
 ///
-/// On all platforms, the newline is the LINE FEED character (`\n`/`U+000A`) alone
+/// *Newline* means the LINE FEED character (`\n`/`U+000A`) alone
 /// (no additional CARRIAGE RETURN (`\r`/`U+000D`).
 ///
-/// Use the [`format!`] syntax to write data to the standard output.
-/// See [`core::fmt`] for more information.
-///
-/// [`format!`]: ../core/macro.format.html
-/// [`core::fmt`]: ../core/fmt/
+/// Use the `format!` syntax to write data to the standard output.
 ///
 /// # Panics
 ///
@@ -75,6 +68,10 @@ macro_rules! kprintln {
     ($fmt:expr, $($arg:tt)*) => (kprint!(concat!($fmt, "\n"), $($arg)*));
 }
 
+/// Temporarily applies text style to current kernel output device.
+///
+/// The style is applied only if output device implements `TextVideo` trait,
+/// otherwise this function is no-op and only runs `f`.
 pub fn with_output_style(text_style: TextStyle, f: impl FnOnce() -> ()) {
     let prev_style = {
         let mut video = VGA_TEXT_VIDEO.lock();

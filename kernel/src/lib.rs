@@ -13,10 +13,10 @@ extern crate spin;
 extern crate volatile;
 extern crate x86_64;
 
-mod dev;
-mod drv;
+pub mod dev;
+pub mod drv;
 #[macro_use]
-mod kio;
+pub mod kio;
 
 use dev::text_video::{TextColor, TextStyle, TextVideo};
 use drv::gfx::vga::text_buffer::VGA_TEXT_VIDEO;
@@ -29,30 +29,13 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
     // Set up early console ASAP, so we will be able to use `kprintln!`
     init_early_console();
 
-    kprintln!("{:x}", mb_info_addr);
-
+    // Load Multiboot information table
     let boot_info = unsafe { multiboot2::load(mb_info_addr) };
-    let memory_map_tag = boot_info.memory_map_tag().expect("Memory map tag required");
 
-    kprintln!("memory areas:");
-    for area in memory_map_tag.memory_areas() {
-        kprintln!(
-            "  start: 0x{:x}, length: 0x{:x}",
-            area.base_addr,
-            area.length
-        );
-    }
+    // Configure system memory
+    init_memory(boot_info);
 
-    panic!("Kernel dead end reached!");
-}
-
-fn init_early_console() {
-    {
-        let mut video = VGA_TEXT_VIDEO.lock();
-        video.enable_cursor();
-        video.clear();
-    }
-    kprintln!("early console works");
+    unreachable!();
 }
 
 /// TODO: The heck is this?
@@ -74,4 +57,22 @@ pub extern "C" fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line:
         },
     );
     loop {}
+}
+
+
+fn init_early_console() {
+    {
+        let mut video = VGA_TEXT_VIDEO.lock();
+        video.enable_cursor();
+        video.clear();
+    }
+
+    kprintln!("early console works");
+}
+
+fn init_memory(boot_info: &multiboot2::BootInformation) {
+    let memory_map_tag = boot_info.memory_map_tag().expect("Memory map tag required");
+
+    let available_bytes: u64 = memory_map_tag.memory_areas().map(|area| area.length).sum();
+    kprintln!("available memory: {} bytes", available_bytes);
 }

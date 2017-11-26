@@ -32,6 +32,18 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
         let boot_info = multiboot2::load(mb_info_addr);
 
+        let bootloader_name = boot_info
+            .boot_loader_name_tag()
+            .map(|t| t.name())
+            .unwrap_or("unknown");
+        kprintln!("bootloader: {}", bootloader_name);
+
+        let cmdline = boot_info
+            .command_line_tag()
+            .map(|t| t.command_line())
+            .unwrap_or("none");
+        kprintln!("cmdline: {}", cmdline);
+
         mem::init(boot_info);
     }
 
@@ -46,7 +58,10 @@ extern "C" fn eh_personality() {}
 #[lang = "panic_fmt"]
 #[no_mangle]
 pub extern "C" fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line: u32) -> ! {
-    let red = TextStyle { foreground: TextColor::Red, background: TextColor::Black };
+    let red = TextStyle {
+        foreground: TextColor::Red,
+        background: TextColor::Black,
+    };
     kio::with_output_style(red, || {
         kprintln!("PANIC in {}:{}", file, line);
         kprintln!("  {}", fmt);

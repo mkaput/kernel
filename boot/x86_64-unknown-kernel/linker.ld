@@ -12,17 +12,21 @@ SECTIONS {
     }
 
     .text : {
-        *(.text)
+        *(.text .text.*)
     }
 
 	/* Read-write data (uninitialized) and stack */
 	.bss : {
+		*(.bss .bss.*)
 		*(COMMON)
-		*(.bss)
 	}
 
     /* Read-only data */
     .rodata : {
-        *(.rodata)
+        *(.rodata .rodata.*)
+    }
+
+    .data.rel.ro : {
+        *(.data.rel.ro.local*) *(.data.rel.ro .data.rel.ro.*)
     }
 }

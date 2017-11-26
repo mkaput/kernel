@@ -191,7 +191,11 @@ error:
 
 section .bss
 align 4096
-; Page tables
+; IMPORTANT!
+; The layout of this section matters! We will use the area used for initial page tables
+; to extend kernel stack.
+
+; Initial page tables
 ;
 ; In long mode, x86 uses a page size of 4096 bytes and a 4 level page table that consists of:
 ; P4) the Page-Map Level-4 Table (PML4),

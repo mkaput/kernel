@@ -23,31 +23,51 @@ pub mod mem;
 
 use dev::text_video::{TextColor, TextStyle};
 
+fn enable_nxe_bit() {
+    use x86_64::registers::msr::{IA32_EFER, rdmsr, wrmsr};
+
+    let nxe_bit = 1 << 11;
+    unsafe {
+        let efer = rdmsr(IA32_EFER);
+        wrmsr(IA32_EFER, efer | nxe_bit);
+    }
+}
+
+fn enable_write_protect_bit() {
+    use x86_64::registers::control_regs::{cr0, cr0_write, Cr0};
+
+    unsafe { cr0_write(cr0() | Cr0::WRITE_PROTECT) };
+}
+
 /// Real kernel entry point
 #[no_mangle]
 pub extern "C" fn krnl_main(mb_info_addr: usize) {
     // ATTENTION: we have a very small stack and no guard page
 
-    unsafe {
-        // Set up early console ASAP, so we will be able to use `kprintln!`
-        kio::early_init();
+    // Set up early console ASAP, so we will be able to use `kprintln!`
+    unsafe { kio::early_init(); }
 
-        let boot_info = multiboot2::load(mb_info_addr);
+    enable_nxe_bit();
 
-        let bootloader_name = boot_info
-            .boot_loader_name_tag()
-            .map(|t| t.name())
-            .unwrap_or("unknown");
-        kprintln!("bootloader: {}", bootloader_name);
+    let boot_info = unsafe { multiboot2::load(mb_info_addr) };
 
-        let cmdline = boot_info
-            .command_line_tag()
-            .map(|t| t.command_line())
-            .unwrap_or("none");
-        kprintln!("cmdline: {}", cmdline);
+    let bootloader_name = boot_info
+        .boot_loader_name_tag()
+        .map(|t| t.name())
+        .unwrap_or("unknown");
+    kprintln!("bootloader: {}", bootloader_name);
 
-        mem::init(boot_info);
-    }
+    let cmdline = boot_info
+        .command_line_tag()
+        .map(|t| t.command_line())
+        .unwrap_or("none");
+    kprintln!("cmdline: {}", cmdline);
+
+    unsafe { mem::init(boot_info); }
+
+    // ATTENTION: now everything is fine
+
+    enable_write_protect_bit();
 
     unreachable!();
 }

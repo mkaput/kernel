@@ -3,6 +3,8 @@
 use core::ops::{Index, IndexMut};
 use core::marker::PhantomData;
 
+use multiboot2::ElfSection;
+
 use super::{Frame, FrameAlloc};
 
 use self::EntryFlags as F;
@@ -111,10 +113,7 @@ where
     }
 }
 
-impl<L> Index<usize> for PageTable<L>
-where
-    L: TableLevel,
-{
+impl<L: TableLevel> Index<usize> for PageTable<L> {
     type Output = Entry;
 
     fn index(&self, index: usize) -> &Entry {
@@ -122,16 +121,14 @@ where
     }
 }
 
-impl<L> IndexMut<usize> for PageTable<L>
-where
-    L: TableLevel,
-{
+impl<L: TableLevel> IndexMut<usize> for PageTable<L> {
     fn index_mut(&mut self, index: usize) -> &mut Entry {
         &mut self.entries[index]
     }
 }
 
 /// Single page table entry
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Entry(u64);
 
 impl Entry {
@@ -190,5 +187,28 @@ bitflags! {
         const GLOBAL =          1 << 8;
         /// Forbid executing code on this page (the NXE bit in the EFER register must be set).
         const NO_EXECUTE =      1 << 63;
+    }
+}
+
+impl EntryFlags {
+    pub fn from_elf_section_flags(section: &ElfSection) -> EntryFlags {
+        use multiboot2::{ELF_SECTION_ALLOCATED, ELF_SECTION_WRITABLE, ELF_SECTION_EXECUTABLE};
+
+        let mut flags = EntryFlags::empty();
+
+        if section.flags().contains(ELF_SECTION_ALLOCATED) {
+            // section is loaded to memory
+            flags = flags | F::PRESENT;
+        }
+
+        if section.flags().contains(ELF_SECTION_WRITABLE) {
+            flags = flags | F::WRITABLE;
+        }
+
+        if !section.flags().contains(ELF_SECTION_EXECUTABLE) {
+            flags = flags | F::NO_EXECUTE;
+        }
+
+        flags
     }
 }

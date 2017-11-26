@@ -85,7 +85,6 @@ impl<'a> FrameAlloc for CoreFrameAlloc<'a> {
 
     fn dealloc(&mut self, _frame: Frame) {
         // TODO: Reusing frames
-        unimplemented!()
     }
 }
 

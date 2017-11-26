@@ -6,27 +6,49 @@ SECTIONS {
        this is conventional place to load a kernel. */
     . = 1M;
 
-    /* Ensure that the multiboot header is at the beginning. */
-    .boot : {
+    /* Read-only data and Multiboot header.
+       We share the section for both parts in order to not waste whole page
+       for small Multiboot header. Because the header has to be at the
+       very beginning, this section comes first. */
+    .rodata : {
         KEEP(*(.multiboot))
+        *(.rodata .rodata.*)
+        . = ALIGN(4K);
     }
 
     .text : {
         *(.text .text.*)
+        . = ALIGN(4K);
     }
 
-	/* Read-write data (uninitialized) and stack */
-	.bss : {
-		*(.bss .bss.*)
-		*(COMMON)
-	}
-
-    /* Read-only data */
-    .rodata : {
-        *(.rodata .rodata.*)
+    .bss : {
+        *(.bss .bss.*)
+        *(COMMON)
+        . = ALIGN(4K);
     }
 
-    .data.rel.ro : {
+    .data : {
+        *(.data .data.*)
+        . = ALIGN(4K);
+    }
+
+    .got : {
+        *(.got)
+        . = ALIGN(4K);
+    }
+
+    .got.plt : {
+        *(.got.plt)
+        . = ALIGN(4K);
+    }
+
+    .data.rel.ro : ALIGN(4K) {
         *(.data.rel.ro.local*) *(.data.rel.ro .data.rel.ro.*)
+        . = ALIGN(4K);
+    }
+
+    .gcc_except_table : ALIGN(4K) {
+        *(.gcc_except_table)
+        . = ALIGN(4K);
     }
 }

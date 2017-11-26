@@ -8,6 +8,8 @@ use x86_64::instructions::port::{inb, outb};
 use dev::output_serial::OutputSerial;
 use dev::text_video::{Cursor, TextColor, TextStyle, TextVideo};
 
+pub const VGA_TEXT_BUFFER_ADDR: usize = 0xb8000;
+
 /// Represents single VGA color
 #[allow(dead_code)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -287,5 +289,5 @@ impl TextVideo for VgaTextVideo {
 pub static VGA_TEXT_VIDEO: Mutex<VgaTextVideo> = Mutex::new(VgaTextVideo {
     current_style: Style::new(Color::LightGray, Color::Black),
     cursor: Cursor::zero(),
-    buffer: unsafe { Unique::new_unchecked(0xb8000 as *mut _) },
+    buffer: unsafe { Unique::new_unchecked(VGA_TEXT_BUFFER_ADDR as *mut _) },
 });

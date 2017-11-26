@@ -103,7 +103,7 @@ pub unsafe fn early_init() {
 ///     kprintln!("  {}", fmt);
 /// });
 /// ```
-pub fn with_output_style(text_style: TextStyle, f: impl FnOnce() -> ()) {
+pub fn with_output_style(text_style: TextStyle, f: impl FnOnce()) {
     let prev_style = {
         let mut video = VGA_TEXT_VIDEO.lock();
         let prev_style = video.current_style();

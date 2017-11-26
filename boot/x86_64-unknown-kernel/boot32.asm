@@ -199,7 +199,8 @@ section .bss
 align 4096
 ; IMPORTANT!
 ; The layout of this section matters! We will use the area used for initial page tables
-; to extend kernel stack.
+; to extend kernel stack. The P3 and P2 tables will become part of the stack and P4 will
+; work as guard page.
 
 ; Initial page tables
 ;

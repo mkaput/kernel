@@ -30,10 +30,8 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
         // Set up early console ASAP, so we will be able to use `kprintln!`
         kio::early_init();
 
-        // Load Multiboot information table
         let boot_info = multiboot2::load(mb_info_addr);
 
-        // Configure system memory
         mem::init(boot_info);
     }
 
@@ -48,15 +46,10 @@ extern "C" fn eh_personality() {}
 #[lang = "panic_fmt"]
 #[no_mangle]
 pub extern "C" fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line: u32) -> ! {
-    kio::with_output_style(
-        TextStyle {
-            foreground: TextColor::Red,
-            background: TextColor::Black,
-        },
-        || {
-            kprintln!("PANIC in {}:{}", file, line);
-            kprintln!("  {}", fmt);
-        },
-    );
+    let red = TextStyle { foreground: TextColor::Red, background: TextColor::Black };
+    kio::with_output_style(red, || {
+        kprintln!("PANIC in {}:{}", file, line);
+        kprintln!("  {}", fmt);
+    });
     loop {}
 }

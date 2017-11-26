@@ -17,23 +17,25 @@ pub mod dev;
 pub mod drv;
 #[macro_use]
 pub mod kio;
+pub mod mem;
 
-use dev::text_video::{TextColor, TextStyle, TextVideo};
-use drv::gfx::vga::text_buffer::VGA_TEXT_VIDEO;
+use dev::text_video::{TextColor, TextStyle};
 
 /// Real kernel entry point
 #[no_mangle]
 pub extern "C" fn krnl_main(mb_info_addr: usize) {
     // ATTENTION: we have a very small stack and no guard page
 
-    // Set up early console ASAP, so we will be able to use `kprintln!`
-    init_early_console();
+    unsafe {
+        // Set up early console ASAP, so we will be able to use `kprintln!`
+        kio::early_init();
 
-    // Load Multiboot information table
-    let boot_info = unsafe { multiboot2::load(mb_info_addr) };
+        // Load Multiboot information table
+        let boot_info = multiboot2::load(mb_info_addr);
 
-    // Configure system memory
-    init_memory(boot_info);
+        // Configure system memory
+        mem::init(boot_info);
+    }
 
     unreachable!();
 }
@@ -57,22 +59,4 @@ pub extern "C" fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line:
         },
     );
     loop {}
-}
-
-
-fn init_early_console() {
-    {
-        let mut video = VGA_TEXT_VIDEO.lock();
-        video.enable_cursor();
-        video.clear();
-    }
-
-    kprintln!("early console works");
-}
-
-fn init_memory(boot_info: &multiboot2::BootInformation) {
-    let memory_map_tag = boot_info.memory_map_tag().expect("Memory map tag required");
-
-    let available_bytes: u64 = memory_map_tag.memory_areas().map(|area| area.length).sum();
-    kprintln!("available memory: {} bytes", available_bytes);
 }

@@ -1,4 +1,4 @@
-use super::{PAGE_SIZE, PhysicalAddress};
+use super::{PhysicalAddress, PAGE_SIZE};
 
 /// Represents physical memory frame.
 ///

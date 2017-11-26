@@ -29,9 +29,14 @@ const PAGE_SIZE: usize = 4096;
 const REMAP_TMP_PAGE_NUMBER: usize = 0xdeadbeef;
 
 pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation) {
-    let mut tmp_page = TmpPage::new(Page { number: REMAP_TMP_PAGE_NUMBER }, allocator);
+    let mut tmp_page = TmpPage::new(
+        Page {
+            number: REMAP_TMP_PAGE_NUMBER,
+        },
+        allocator,
+    );
 
-    let mut active_table = unsafe {ActivePageTable::new()};
+    let mut active_table = unsafe { ActivePageTable::new() };
 
     let mut new_table = {
         let frame = allocator.alloc().expect("out of memory");
@@ -40,7 +45,9 @@ pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation
 
     active_table.with(&mut new_table, &mut tmp_page, |mapper| {
         // Identity map kernel sections
-        let elf_sections_tag = boot_info.elf_sections_tag().expect("Elf sections tag required");
+        let elf_sections_tag = boot_info
+            .elf_sections_tag()
+            .expect("Elf sections tag required");
 
         for section in elf_sections_tag.sections() {
             if !section.is_allocated() {
@@ -48,7 +55,11 @@ pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation
                 continue;
             }
 
-            assert_eq!(section.start_address() % PAGE_SIZE, 0, "kernel sections need to be page aligned");
+            assert_eq!(
+                section.start_address() % PAGE_SIZE,
+                0,
+                "kernel sections need to be page aligned"
+            );
 
             let flags = EntryFlags::from_elf_section_flags(section);
 
@@ -73,9 +84,7 @@ pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation
 
     let old_table = active_table.switch(new_table);
 
-    let old_p4_page = Page::containing_address(
-        old_table.p4_frame.start_address()
-    );
+    let old_p4_page = Page::containing_address(old_table.p4_frame.start_address());
 
     active_table.unmap(old_p4_page, allocator);
 

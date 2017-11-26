@@ -3,11 +3,11 @@ use core::ptr::Unique;
 use x86_64::instructions::tlb;
 use x86_64::VirtualAddress as NVirtualAddress;
 
-use super::{PAGE_SIZE, VirtualAddress, PhysicalAddress};
+use super::{PhysicalAddress, VirtualAddress, PAGE_SIZE};
 use super::frame::Frame;
 use super::frame_alloc::FrameAlloc;
 use super::page::Page;
-use super::page_table::{ENTRY_COUNT, EntryFlags, PageTable, L4, P4};
+use super::page_table::{EntryFlags, L4, P4, PageTable, ENTRY_COUNT};
 use super::page_table::EntryFlags as F;
 
 pub struct Mapper {

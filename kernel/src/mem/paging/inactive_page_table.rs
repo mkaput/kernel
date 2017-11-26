@@ -8,7 +8,11 @@ pub struct InactivePageTable {
 }
 
 impl InactivePageTable {
-    pub fn new(frame: Frame, active_table: &mut ActivePageTable, tmp_page: &mut TmpPage) -> InactivePageTable {
+    pub fn new(
+        frame: Frame,
+        active_table: &mut ActivePageTable,
+        tmp_page: &mut TmpPage,
+    ) -> InactivePageTable {
         {
             let table = tmp_page.map_table_frame(frame.clone(), active_table);
             table.clear();

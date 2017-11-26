@@ -16,10 +16,17 @@ pub struct ActivePageTable {
 
 impl ActivePageTable {
     pub unsafe fn new() -> ActivePageTable {
-        ActivePageTable { mapper: Mapper::new() }
+        ActivePageTable {
+            mapper: Mapper::new(),
+        }
     }
 
-    pub fn with(&mut self, table: &mut InactivePageTable, tmp_page: &mut TmpPage, f: impl FnOnce(&mut Mapper)) {
+    pub fn with(
+        &mut self,
+        table: &mut InactivePageTable,
+        tmp_page: &mut TmpPage,
+        f: impl FnOnce(&mut Mapper),
+    ) {
         {
             // Backup current recursive mapping
             let old_rec = self.p4()[511];

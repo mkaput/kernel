@@ -24,7 +24,7 @@ pub mod mem;
 use dev::text_video::{TextColor, TextStyle};
 
 fn enable_nxe_bit() {
-    use x86_64::registers::msr::{IA32_EFER, rdmsr, wrmsr};
+    use x86_64::registers::msr::{rdmsr, wrmsr, IA32_EFER};
 
     let nxe_bit = 1 << 11;
     unsafe {
@@ -34,7 +34,7 @@ fn enable_nxe_bit() {
 }
 
 fn enable_write_protect_bit() {
-    use x86_64::registers::control_regs::{cr0, cr0_write, Cr0};
+    use x86_64::registers::control_regs::{Cr0, cr0, cr0_write};
 
     unsafe { cr0_write(cr0() | Cr0::WRITE_PROTECT) };
 }
@@ -45,7 +45,9 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
     // ATTENTION: we have a very small stack and no guard page
 
     // Set up early console ASAP, so we will be able to use `kprintln!`
-    unsafe { kio::early_init(); }
+    unsafe {
+        kio::early_init();
+    }
 
     enable_nxe_bit();
 
@@ -63,7 +65,9 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
         .unwrap_or("none");
     kprintln!("cmdline: {}", cmdline);
 
-    unsafe { mem::init(boot_info); }
+    unsafe {
+        mem::init(boot_info);
+    }
 
     // ATTENTION: now everything is fine
 

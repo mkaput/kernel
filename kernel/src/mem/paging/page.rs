@@ -1,4 +1,4 @@
-use super::{PAGE_SIZE, PhysicalAddress, VirtualAddress};
+use super::{PhysicalAddress, VirtualAddress, PAGE_SIZE};
 
 /// Represents virtual memory page
 #[derive(Clone, Copy, Debug, Ord, PartialOrd, Eq, PartialEq)]

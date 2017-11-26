@@ -2,8 +2,6 @@ use multiboot2::{MemoryArea, MemoryAreaIter};
 
 use super::{Frame, FrameAlloc};
 
-// TODO: Reusing frames
-
 pub struct CoreFrameAlloc<'a> {
     next_free_frame: Frame,
     current_area: Option<&'static MemoryArea>,
@@ -86,7 +84,7 @@ impl<'a> FrameAlloc for CoreFrameAlloc<'a> {
     }
 
     fn dealloc(&mut self, _frame: Frame) {
-        // TODO:
+        // TODO: Reusing frames
         unimplemented!()
     }
 }

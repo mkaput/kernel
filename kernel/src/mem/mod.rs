@@ -6,7 +6,7 @@ use core::cmp;
 
 use multiboot2;
 
-use self::paging::{Frame, FrameAlloc, CoreFrameAlloc};
+use self::paging::*;
 
 /// Initializes memory subsystem.
 ///
@@ -35,19 +35,15 @@ pub unsafe fn init(boot_info: &multiboot2::BootInformation) {
     let multiboot_end = boot_info.end_address();
 
     let reserved = [
-        (Frame::containing_address(kernel_start), Frame::containing_address(kernel_end)),
-        (Frame::containing_address(multiboot_start), Frame::containing_address(multiboot_end)),
+        (
+            Frame::containing_address(kernel_start),
+            Frame::containing_address(kernel_end),
+        ),
+        (
+            Frame::containing_address(multiboot_start),
+            Frame::containing_address(multiboot_end),
+        ),
     ];
 
-    let mut frame_allocator = CoreFrameAlloc::new(
-        memory_map_tag.memory_areas(),
-        &reserved
-    );
-
-    for i in 0.. {
-        if let None = frame_allocator.alloc() {
-            kprintln!("allocated {} frames", i);
-            break;
-        }
-    }
+    let mut frame_allocator = CoreFrameAlloc::new(memory_map_tag.memory_areas(), &reserved);
 }

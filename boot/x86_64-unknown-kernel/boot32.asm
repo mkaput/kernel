@@ -114,6 +114,12 @@ init_page_tables:
     or eax, 0b000000000011      ; present + writable
     mov dword [P4_TABLE], eax
 
+    ; Recursive map last P4 entry to P4 table, so we will be able to address
+    ; page tables in the future, at address 0xffff_ffff_ffff_f000.
+    mov eax, P4_TABLE
+    or eax, 0b11                ; present + writable
+    mov [P4_TABLE + 511 * 8], eax
+
     ; Map first P3 entry to P2 table
     mov eax, P2_TABLE
     or eax, 0b000000000011      ; present + writable

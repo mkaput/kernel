@@ -6,6 +6,8 @@
 #![feature(universal_impl_trait)]
 #![no_std]
 
+#[macro_use]
+extern crate bitflags;
 // FIXME: this crate is multiboot2 1.6 compliant while we use 2.0
 extern crate multiboot2;
 extern crate rlibc;

@@ -45,7 +45,7 @@ impl Mapper {
 
         frame.or_else(|| {
             // Handle huge pages
-            // TODO: How it works?
+            // TODO: Copy-pasted, how it works?
             p3.and_then(|p3| {
                 let p3_entry = &p3[page.p3_index()];
                 // 1GiB page?

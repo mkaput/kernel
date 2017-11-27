@@ -2,26 +2,34 @@
 
 The kernel is distributed as bootable image that can be used as LiveCD or LiveUSB, which eases its educational usage. The booting process is highly dependent on Multiboot compatible bootloader, usually GRUB 2.
 
-## Sequence diagram
-
 ```sequence
 Title: Entering krnl_main
-BIOS->CDROM: Read 1st\nsector and\nrun it
-CDROM->GRUB: Read rest of\nthe image and\nrun GRUB Kernel
-GRUB-->>BIOS: Fetch system information
-BIOS-->>GRUB: System information
+
+participant BIOS\nUEFI as BIOS
+participant CDROM
+participant GRUB
+participant Kernel\n(ASM) as ASM
+participant Kernel\n(Rust) as Rust
+
+BIOS-->CDROM: Load 1st sector
+CDROM-->BIOS:
+BIOS->CDROM: Jump to\n1st sector
+CDROM-->GRUB: Read rest of\nthe image
+GRUB-->CDROM:
+CDROM->GRUB: Jump to\nGRUB Kernel
+GRUB-->BIOS: Fetch system information
+BIOS-->GRUB:
 Note over GRUB: Enter protected mode
 GRUB-->>CDROM: Load grub.cfg
+CDROM-->GRUB:
 Note over GRUB: Show boot screen
-GRUB-->>Kernel: Load kernel.bin
-Note over GRUB: Fill Multiboot\nboot information
-GRUB->Kernel: Jump to krnl_start32
-Note over Kernel: Enter long mode
-Note over Kernel: Far jump to krnl_start64
-Note over Kernel: Call krnl_main
+GRUB-->ASM: Load kernel.bin
+ASM-->GRUB:
+Note over GRUB: Fill Multiboot\ninfo table
+GRUB->ASM: Jump to\nkrnl_start32
+Note over ASM: Perform basic system checks,\nprepare min. environment for\nRust code, enter long mode\nand far jump to krnl_start64
+ASM->Rust: Call krnl_main
 ```
-
-*(this diagram may not perfectly resemble the real state of art)*
 
 Very nice and more detailed description on how do early stages of GRUB 2 work is in the [Linux Inside] book, chapter [From bootloader to kernel][li-boot]. Note that Linux has its own [boot protocol][linux-boot] which differs from Multiboot.
 

@@ -7,7 +7,7 @@ use core::cmp;
 
 use multiboot2::BootInformation;
 
-use self::paging::{Frame, CoreFrameAlloc, remap_kernel, Page};
+use self::paging::{remap_kernel, CoreFrameAlloc, Frame, Page};
 
 pub const HEAP_START: usize = 0o_000_004_000_000_0000;
 pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
@@ -54,7 +54,7 @@ pub unsafe fn init(boot_info: &BootInformation) {
     let mut active_table = remap_kernel(&mut frame_allocator, boot_info);
 
     let heap_start_page = Page::containing_address(HEAP_START);
-    let heap_end_page = Page::containing_address(HEAP_START + HEAP_SIZE-1);
+    let heap_end_page = Page::containing_address(HEAP_START + HEAP_SIZE - 1);
 
     for page in Page::range_inclusive(heap_start_page, heap_end_page) {
         active_table.map(page, paging::EntryFlags::WRITABLE, &mut frame_allocator);

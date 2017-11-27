@@ -12,7 +12,11 @@ pub struct KernelAlloc {
 
 impl KernelAlloc {
     pub const fn new(heap_start: usize, heap_end: usize) -> KernelAlloc {
-        KernelAlloc { heap_start, heap_end, next: AtomicUsize::new(heap_start) }
+        KernelAlloc {
+            heap_start,
+            heap_end,
+            next: AtomicUsize::new(heap_start),
+        }
     }
 }
 
@@ -24,12 +28,13 @@ unsafe impl<'a> Alloc for &'a KernelAlloc {
             let alloc_end = alloc_start.saturating_add(layout.size());
 
             if alloc_end <= self.heap_end {
-                let new_next = self.next.compare_and_swap(old_next, alloc_end, Ordering::Relaxed);
+                let new_next = self.next
+                    .compare_and_swap(old_next, alloc_end, Ordering::Relaxed);
                 if new_next == old_next {
-                    return Ok(alloc_start as *mut u8)
+                    return Ok(alloc_start as *mut u8);
                 }
             } else {
-                return Err(AllocErr::Exhausted { request: layout })
+                return Err(AllocErr::Exhausted { request: layout });
             }
         }
     }

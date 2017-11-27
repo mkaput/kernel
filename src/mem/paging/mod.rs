@@ -28,7 +28,10 @@ const PAGE_SIZE: usize = 4096;
 
 const REMAP_TMP_PAGE_NUMBER: usize = 0xdeadbeef;
 
-pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation) -> ActivePageTable {
+pub fn remap_kernel(
+    allocator: &mut impl FrameAlloc,
+    boot_info: &BootInformation,
+) -> ActivePageTable {
     let mut tmp_page = TmpPage::new(
         Page {
             number: REMAP_TMP_PAGE_NUMBER,

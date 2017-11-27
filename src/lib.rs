@@ -28,12 +28,11 @@ pub mod kio;
 pub mod mem;
 
 use dev::text_video::{TextColor, TextStyle};
-use mem::{HEAP_START, HEAP_SIZE};
+use mem::{HEAP_SIZE, HEAP_START};
 use mem::alloc::KernelAlloc;
 
 #[global_allocator]
 static HEAP_ALLOCATOR: KernelAlloc = KernelAlloc::new(HEAP_START, HEAP_START + HEAP_SIZE);
-
 
 /// Real kernel entry point
 #[no_mangle]

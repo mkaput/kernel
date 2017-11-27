@@ -5,9 +5,9 @@
 * [Introduction](README.md)
 * [Work stages](work-stages.md)
 
-### Kernel internals
+### From power button to user prompt
 
-* [Booting the kernel](internals/boot.md)
+* [Booting the kernel](booting/boot.md)
 
 ### Development
 

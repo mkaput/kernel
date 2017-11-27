@@ -92,9 +92,7 @@ pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation
     });
 
     let old_table = active_table.switch(new_table);
-
     let old_p4_page = Page::containing_address(old_table.p4_frame.start_address());
-
     active_table.unmap(old_p4_page, allocator);
 
     kprintln!("remapped kernel successfully");

@@ -82,7 +82,7 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
         }
         kprintln!();
 
-        for i in 0..10000 {
+        for _ in 0..10000 {
             format!("Some String");
         }
     }

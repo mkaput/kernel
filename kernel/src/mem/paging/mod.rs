@@ -70,7 +70,12 @@ pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation
             let end_frame = Frame::containing_address(section.end_address() - 1);
 
             let section_name = string_table.section_name(section);
-            kprintln!("  {:-16} {:#x}-{:#x}", section_name, start_frame.start_address(), end_frame.end_address());
+            kprintln!(
+                "  {:-16} {:#x}-{:#x}",
+                section_name,
+                start_frame.start_address(),
+                end_frame.end_address()
+            );
 
             for frame in Frame::range_inclusive(start_frame, end_frame) {
                 mapper.identity_map(frame, flags, allocator);
@@ -79,13 +84,21 @@ pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation
 
         // Identity map VGA text buffer
         let vga_buffer_frame = Frame::containing_address(VGA_TEXT_BUFFER_ADDR);
-        kprintln!("  VGA text buffer  {:#x}-{:#x}", vga_buffer_frame.start_address(), vga_buffer_frame.end_address());
+        kprintln!(
+            "  VGA text buffer  {:#x}-{:#x}",
+            vga_buffer_frame.start_address(),
+            vga_buffer_frame.end_address()
+        );
         mapper.identity_map(vga_buffer_frame, F::WRITABLE, allocator);
 
         // Identity map Multiboot info
         let multiboot_start = Frame::containing_address(boot_info.start_address());
         let multiboot_end = Frame::containing_address(boot_info.end_address() - 1);
-        kprintln!("  Boot info        {:#x}-{:#x}", multiboot_start.start_address(), multiboot_end.end_address());
+        kprintln!(
+            "  Boot info        {:#x}-{:#x}",
+            multiboot_start.start_address(),
+            multiboot_end.end_address()
+        );
         for frame in Frame::range_inclusive(multiboot_start, multiboot_end) {
             mapper.identity_map(frame, F::PRESENT, allocator);
         }

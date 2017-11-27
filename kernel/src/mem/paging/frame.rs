@@ -29,6 +29,11 @@ impl Frame {
         self.number * PAGE_SIZE
     }
 
+    /// Returns first physical address after frame end.
+    pub const fn end_address(&self) -> PhysicalAddress {
+        (self.number + 1) * PAGE_SIZE
+    }
+
     pub(super) fn range_inclusive(start: Frame, end: Frame) -> FrameIter {
         FrameIter { start, end }
     }

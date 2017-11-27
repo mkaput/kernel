@@ -13,13 +13,13 @@ use drv::gfx::vga::text_buffer::VGA_TEXT_BUFFER_ADDR;
 
 use self::active_page_table::ActivePageTable;
 use self::inactive_page_table::InactivePageTable;
-use self::page::Page;
-use self::page_table::*;
 use self::page_table::EntryFlags as F;
 use self::tmp_page::TmpPage;
 
 pub use self::frame::*;
 pub use self::frame_alloc::*;
+pub use self::page::{Page, PageIter};
+pub use self::page_table::EntryFlags;
 
 pub type VirtualAddress = usize;
 pub type PhysicalAddress = usize;
@@ -28,7 +28,7 @@ const PAGE_SIZE: usize = 4096;
 
 const REMAP_TMP_PAGE_NUMBER: usize = 0xdeadbeef;
 
-pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation) {
+pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation) -> ActivePageTable {
     let mut tmp_page = TmpPage::new(
         Page {
             number: REMAP_TMP_PAGE_NUMBER,
@@ -109,4 +109,6 @@ pub fn remap_kernel(allocator: &mut impl FrameAlloc, boot_info: &BootInformation
     active_table.unmap(old_p4_page, allocator);
 
     kprintln!("remapped kernel successfully");
+
+    active_table
 }

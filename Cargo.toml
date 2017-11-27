@@ -1,2 +1,15 @@
-[workspace]
-members = ["kernel"]
+[package]
+name = "kernel"
+version = "0.1.0"
+authors = ["Marek Kaput <marek.kaput@outlook.com>"]
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+bitflags = "~1.0"
+multiboot2 = "~0.3"
+rlibc = "~1.0"
+spin = "~0.4.6"
+volatile = "~0.2.3"
+x86_64 = "~0.1.2"

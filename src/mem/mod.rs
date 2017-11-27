@@ -1,12 +1,16 @@
 //! Memory management subsystem
 
-mod paging;
+pub mod alloc;
+pub mod paging;
 
 use core::cmp;
 
 use multiboot2::BootInformation;
 
-use self::paging::*;
+use self::paging::{Frame, CoreFrameAlloc, remap_kernel, Page};
+
+pub const HEAP_START: usize = 0o_000_001_000_000_0000;
+pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
 
 /// Initializes memory subsystem.
 ///
@@ -16,9 +20,6 @@ use self::paging::*;
 pub unsafe fn init(boot_info: &BootInformation) {
     let memory_map_tag = boot_info.memory_map_tag().expect("Memory map tag required");
 
-    let available_bytes: u64 = memory_map_tag.memory_areas().map(|area| area.length).sum();
-    kprintln!("available memory: {} bytes", available_bytes);
-
     let reserved = {
         let elf_sections_tag = boot_info
             .elf_sections_tag()
@@ -26,6 +27,7 @@ pub unsafe fn init(boot_info: &BootInformation) {
 
         let (kernel_start, kernel_end) = elf_sections_tag
             .sections()
+            .filter(|s| s.is_allocated())
             .map(|s| (s.start_address(), s.end_address()))
             .fold(
                 (usize::max_value(), usize::min_value()),
@@ -49,5 +51,12 @@ pub unsafe fn init(boot_info: &BootInformation) {
 
     let mut frame_allocator = CoreFrameAlloc::new(memory_map_tag.memory_areas(), &reserved);
 
-    remap_kernel(&mut frame_allocator, boot_info);
+    let mut active_table = remap_kernel(&mut frame_allocator, boot_info);
+
+    let heap_start_page = Page::containing_address(HEAP_START);
+    let heap_end_page = Page::containing_address(HEAP_START + HEAP_SIZE-1);
+
+    for page in Page::range_inclusive(heap_start_page, heap_end_page) {
+        active_table.map(page, paging::EntryFlags::WRITABLE, &mut frame_allocator);
+    }
 }

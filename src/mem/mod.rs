@@ -7,6 +7,8 @@ use core::cmp;
 
 use multiboot2::BootInformation;
 
+use super::HEAP_ALLOCATOR;
+
 use self::paging::{remap_kernel, CoreFrameAlloc, Frame, Page};
 
 pub const HEAP_START: usize = 0o_000_004_000_000_0000;
@@ -59,4 +61,6 @@ pub unsafe fn init(boot_info: &BootInformation) {
     for page in Page::range_inclusive(heap_start_page, heap_end_page) {
         active_table.map(page, paging::EntryFlags::WRITABLE, &mut frame_allocator);
     }
+
+    HEAP_ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE);
 }

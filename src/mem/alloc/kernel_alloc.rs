@@ -3,6 +3,8 @@ use core::sync::atomic::{AtomicUsize, Ordering};
 
 use super::util::align_up;
 
+// TODO: Implement this to replace linked_list_allocator
+
 #[derive(Debug)]
 pub struct KernelAlloc {
     heap_start: usize,

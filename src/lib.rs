@@ -14,6 +14,7 @@
 extern crate alloc;
 #[macro_use]
 extern crate bitflags;
+extern crate linked_list_allocator;
 // FIXME: this crate is multiboot2 1.6 compliant while we use 2.0
 extern crate multiboot2;
 extern crate rlibc;
@@ -27,12 +28,12 @@ pub mod drv;
 pub mod kio;
 pub mod mem;
 
+use linked_list_allocator::LockedHeap;
+
 use dev::text_video::{TextColor, TextStyle};
-use mem::{HEAP_SIZE, HEAP_START};
-use mem::alloc::KernelAlloc;
 
 #[global_allocator]
-static HEAP_ALLOCATOR: KernelAlloc = KernelAlloc::new(HEAP_START, HEAP_START + HEAP_SIZE);
+static HEAP_ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 /// Real kernel entry point
 #[no_mangle]

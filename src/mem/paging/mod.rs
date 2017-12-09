@@ -11,11 +11,11 @@ use multiboot2::BootInformation;
 
 use drv::gfx::vga::text_buffer::VGA_TEXT_BUFFER_ADDR;
 
-use self::active_page_table::ActivePageTable;
 use self::inactive_page_table::InactivePageTable;
 use self::page_table::EntryFlags as F;
 use self::tmp_page::TmpPage;
 
+pub use self::active_page_table::ActivePageTable;
 pub use self::frame::*;
 pub use self::frame_alloc::*;
 pub use self::page::{Page, PageIter};
@@ -24,7 +24,7 @@ pub use self::page_table::EntryFlags;
 pub type VirtualAddress = usize;
 pub type PhysicalAddress = usize;
 
-const PAGE_SIZE: usize = 4096;
+pub const PAGE_SIZE: usize = 4096;
 
 const REMAP_TMP_PAGE_NUMBER: usize = 0xdeadbeef;
 

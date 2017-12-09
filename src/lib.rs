@@ -1,17 +1,19 @@
+#![feature(abi_x86_interrupt)]
 #![feature(alloc)]
 #![feature(allocator_api)]
 #![feature(asm)]
 #![feature(const_atomic_usize_new)]
 #![feature(const_fn)]
 #![feature(const_unique_new)]
+#![feature(const_unsafe_cell_new)]
 #![feature(global_allocator)]
 #![feature(lang_items)]
 #![feature(unique)]
 #![feature(universal_impl_trait)]
 #![no_std]
 
-#[macro_use]
 extern crate alloc;
+extern crate bit_field;
 #[macro_use]
 extern crate bitflags;
 extern crate linked_list_allocator;
@@ -22,10 +24,12 @@ extern crate spin;
 extern crate volatile;
 extern crate x86_64;
 
-pub mod dev;
-pub mod drv;
 #[macro_use]
 pub mod kio;
+
+pub mod dev;
+pub mod drv;
+pub mod interrupts;
 pub mod mem;
 
 use linked_list_allocator::LockedHeap;
@@ -64,28 +68,19 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
     unsafe {
         mem::init(boot_info);
+        interrupts::init();
     }
 
     // ATTENTION: now everything is fine
 
-    {
-        use alloc::boxed::Box;
-        let mut heap_test = Box::new(42);
-        *heap_test -= 15;
-        let heap_test2 = Box::new("hello");
-        kprintln!("{:?} {:?}", heap_test, heap_test2);
+    x86_64::instructions::interrupts::int3();
 
-        let mut vec_test = vec![1, 2, 3, 4, 5, 6, 7];
-        vec_test[3] = 42;
-        for i in &vec_test {
-            kprint!("{} ", i);
-        }
-        kprintln!();
-
-        for _ in 0..10000 {
-            format!("Some String");
-        }
+    fn stack_overflow() {
+        stack_overflow(); // for each recursion, the return address is pushed
     }
+
+    // trigger a stack overflow
+    stack_overflow();
 
     unreachable!();
 }

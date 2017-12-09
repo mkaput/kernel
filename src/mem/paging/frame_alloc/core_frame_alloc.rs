@@ -2,16 +2,16 @@ use multiboot2::{MemoryArea, MemoryAreaIter};
 
 use super::{Frame, FrameAlloc};
 
-pub struct CoreFrameAlloc<'a> {
+pub struct CoreFrameAlloc {
     next_free_frame: Frame,
     current_area: Option<&'static MemoryArea>,
     areas: MemoryAreaIter,
-    reserved_frames: &'a [(Frame, Frame)],
+    reserved_frames: [(Frame, Frame); 2],
 }
 
-impl<'a> CoreFrameAlloc<'a> {
+impl CoreFrameAlloc {
     /// Constructs new core frame allocator
-    pub fn new(areas: MemoryAreaIter, reserved_frames: &[(Frame, Frame)]) -> CoreFrameAlloc {
+    pub fn new(areas: MemoryAreaIter, reserved_frames: [(Frame, Frame); 2]) -> CoreFrameAlloc {
         let mut alloc = CoreFrameAlloc {
             next_free_frame: Frame::containing_address(0),
             current_area: None,
@@ -52,7 +52,7 @@ impl<'a> CoreFrameAlloc<'a> {
     }
 }
 
-impl<'a> FrameAlloc for CoreFrameAlloc<'a> {
+impl FrameAlloc for CoreFrameAlloc {
     fn alloc(&mut self) -> Option<Frame> {
         // TODO: Pick first reusable free frame
 

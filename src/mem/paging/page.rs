@@ -1,3 +1,5 @@
+use core::ops::{Add, Sub};
+
 use super::{PhysicalAddress, VirtualAddress, PAGE_SIZE};
 
 /// Represents virtual memory page
@@ -28,6 +30,11 @@ impl Page {
         self.number * PAGE_SIZE
     }
 
+    /// Returns first virtual address after page end
+    pub const fn end_address(self) -> PhysicalAddress {
+        (self.number + 1) * PAGE_SIZE
+    }
+
     pub(super) fn p4_index(&self) -> usize {
         (self.number >> 27) & 0o777
     }
@@ -49,6 +56,27 @@ impl Page {
     }
 }
 
+impl Add<usize> for Page {
+    type Output = Page;
+
+    fn add(self, rhs: usize) -> Page {
+        Page {
+            number: self.number + rhs,
+        }
+    }
+}
+
+impl Sub<usize> for Page {
+    type Output = Page;
+
+    fn sub(self, rhs: usize) -> Page {
+        Page {
+            number: self.number - rhs,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct PageIter {
     start: Page,
     end: Page,

@@ -5,13 +5,17 @@ use super::paging::EntryFlags as F;
 pub struct Stack {
     pub top: usize,
     pub bottom: usize,
-    __guard: ()
+    __guard: (),
 }
 
 impl Stack {
     fn new(top: usize, bottom: usize) -> Stack {
         assert!(top > bottom);
-        Stack { top, bottom, __guard: () }
+        Stack {
+            top,
+            bottom,
+            __guard: (),
+        }
     }
 }
 

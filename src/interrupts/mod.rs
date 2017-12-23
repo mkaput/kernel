@@ -124,12 +124,18 @@ extern "x86-interrupt" fn invalid_opcode_handler(stack_frame: &mut ExceptionStac
     loop {}
 }
 
-extern "x86-interrupt" fn double_fault_handler(stack_frame: &mut ExceptionStackFrame, _error_code: u64) {
+extern "x86-interrupt" fn double_fault_handler(
+    stack_frame: &mut ExceptionStackFrame,
+    _error_code: u64,
+) {
     print_exception("DOUBLE FAULT", stack_frame);
     loop {}
 }
 
-extern "x86-interrupt" fn page_fault_handler(stack_frame: &mut ExceptionStackFrame, error_code: PageFaultErrorCode) {
+extern "x86-interrupt" fn page_fault_handler(
+    stack_frame: &mut ExceptionStackFrame,
+    error_code: PageFaultErrorCode,
+) {
     print_exception_ex("PAGE FAULT", || {
         kprintln!("Error code: {:#?}", error_code);
         kprintln!("{:#?}", stack_frame);

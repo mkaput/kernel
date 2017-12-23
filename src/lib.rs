@@ -42,7 +42,7 @@ static HEAP_ALLOCATOR: LockedHeap = LockedHeap::empty();
 /// Real kernel entry point
 #[no_mangle]
 pub extern "C" fn krnl_main(mb_info_addr: usize) {
-    // ATTENTION: we have small stack and no guard page
+    // ATTENTION: we have small stack, no guard page and no interrupts configured
 
     // Set up early console ASAP, so we will be able to use `kprintln!`
     unsafe {
@@ -51,17 +51,11 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
     let boot_info = unsafe { multiboot2::load(mb_info_addr) };
 
-    let bootloader_name = boot_info
-        .boot_loader_name_tag()
-        .map(|t| t.name())
-        .unwrap_or("unknown");
-    kprintln!("bootloader: {}", bootloader_name);
+    let bootloader_name = boot_info.boot_loader_name_tag().map(|t| t.name());
+    kprintln!("bootloader: {}", bootloader_name.unwrap_or("unknown"));
 
-    let cmdline = boot_info
-        .command_line_tag()
-        .map(|t| t.command_line())
-        .unwrap_or("none");
-    kprintln!("cmdline: {}", cmdline);
+    let cmdline = boot_info.command_line_tag().map(|t| t.command_line());
+    kprintln!("cmdline: {}", cmdline.unwrap_or("none"));
 
     enable_nxe_bit();
     enable_write_protect_bit();

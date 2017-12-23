@@ -73,15 +73,6 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
     // ATTENTION: now everything is fine
 
-    x86_64::instructions::interrupts::int3();
-
-    fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed
-    }
-
-    // trigger a stack overflow
-    stack_overflow();
-
     unreachable!();
 }
 

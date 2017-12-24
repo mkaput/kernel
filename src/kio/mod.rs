@@ -4,6 +4,7 @@
 mod macros;
 
 pub mod interrupts;
+pub mod port;
 
 use core::fmt::{self, Write};
 

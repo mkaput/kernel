@@ -3,7 +3,7 @@
 #[macro_use]
 mod macros;
 
-pub mod interrupts;
+pub mod idt;
 pub mod port;
 
 use core::fmt::{self, Write};

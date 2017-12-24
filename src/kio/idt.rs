@@ -156,6 +156,7 @@ fn print_exception_ex(name: &str, info_provider: impl FnOnce()) {
         foreground: TextColor::White,
         background: TextColor::Red,
     };
+
     let info = TextStyle {
         foreground: TextColor::LightRed,
         background: TextColor::Black,
@@ -167,4 +168,6 @@ fn print_exception_ex(name: &str, info_provider: impl FnOnce()) {
         kprintln!("=== EXCEPTION: {} ===", name);
     });
     kio::with_output_style(info, info_provider);
+
+    kprintln!();
 }

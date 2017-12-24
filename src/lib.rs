@@ -60,10 +60,12 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
     unsafe {
         mem::init(boot_info);
-        kio::interrupts::init();
+        kio::idt::init();
     }
 
     // ATTENTION: now everything is fine
+
+    x86_64::instructions::interrupts::int3();
 
     unreachable!();
 }
@@ -76,14 +78,29 @@ extern "C" fn eh_personality() {}
 #[lang = "panic_fmt"]
 #[no_mangle]
 pub extern "C" fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line: u32) -> ! {
-    let red = TextStyle {
-        foreground: TextColor::Red,
+    let header = TextStyle {
+        foreground: TextColor::White,
+        background: TextColor::Red,
+    };
+
+    let details = TextStyle {
+        foreground: TextColor::LightRed,
         background: TextColor::Black,
     };
-    kio::with_output_style(red, || {
-        kprintln!("PANIC in {}:{}", file, line);
+
+    kprintln!();
+
+    kio::with_output_style(header, || {
+        kprintln!("=== KERNEL PANIC ===");
+    });
+
+    kio::with_output_style(details, || {
+        kprintln!("{}:{}:", file, line);
         kprintln!("  {}", fmt);
     });
+
+    kprintln!();
+
     loop {}
 }
 

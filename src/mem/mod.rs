@@ -1,6 +1,7 @@
 //! Memory management subsystem
 
 pub mod alloc;
+pub mod gdt;
 pub mod paging;
 pub mod stack;
 

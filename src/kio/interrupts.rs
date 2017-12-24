@@ -1,7 +1,5 @@
 //! Services for handling system interrupts
 
-mod gdt;
-
 use spin::Once;
 use x86_64::VirtualAddress;
 use x86_64::instructions::segmentation::set_cs;
@@ -13,8 +11,7 @@ use x86_64::structures::tss::TaskStateSegment;
 use dev::text_video::{TextColor, TextStyle};
 use kio;
 use mem::alloc_stack;
-
-use self::gdt::Gdt;
+use mem::gdt::{self, Gdt};
 
 const DOUBLE_FAULT_IST_INDEX: usize = 0;
 const MACHINE_CHECK_IST_INDEX: usize = 1;

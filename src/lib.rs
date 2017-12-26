@@ -42,7 +42,7 @@ static HEAP_ALLOCATOR: LockedHeap = LockedHeap::empty();
 pub extern "C" fn krnl_main(mb_info_addr: usize) {
     // ATTENTION: we have small stack, no guard page and no interrupts configured
 
-    // Set up early console ASAP, so we will be able to use `kprintln!`
+    // Set up early console ASAP, so we will be able to use `println!`
     unsafe {
         kio::early_init();
     }
@@ -50,10 +50,10 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
     let boot_info = unsafe { multiboot2::load(mb_info_addr) };
 
     let bootloader_name = boot_info.boot_loader_name_tag().map(|t| t.name());
-    kprintln!("bootloader: {}", bootloader_name.unwrap_or("unknown"));
+    println!("bootloader: {}", bootloader_name.unwrap_or("unknown"));
 
     let cmdline = boot_info.command_line_tag().map(|t| t.command_line());
-    kprintln!("cmdline: {}", cmdline.unwrap_or("none"));
+    println!("cmdline: {}", cmdline.unwrap_or("none"));
 
     enable_nxe_bit();
     enable_write_protect_bit();
@@ -88,18 +88,18 @@ pub extern "C" fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line:
         background: TextColor::Black,
     };
 
-    kprintln!();
+    println!();
 
     kio::with_output_style(header, || {
-        kprintln!("=== KERNEL PANIC ===");
+        println!("=== KERNEL PANIC ===");
     });
 
     kio::with_output_style(details, || {
-        kprintln!("{}:{}:", file, line);
-        kprintln!("  {}", fmt);
+        println!("{}:{}:", file, line);
+        println!("  {}", fmt);
     });
 
-    kprintln!();
+    println!();
 
     loop {}
 }

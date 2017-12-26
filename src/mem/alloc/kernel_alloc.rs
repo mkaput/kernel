@@ -42,6 +42,6 @@ unsafe impl<'a> Alloc for &'a KernelAlloc {
     }
 
     unsafe fn dealloc(&mut self, _ptr: *mut u8, _layout: Layout) {
-        kprintln!("DEALLOCATING MEMORY IS NOT IMPLEMENTED YET");
+        println!("DEALLOCATING MEMORY IS NOT IMPLEMENTED YET");
     }
 }

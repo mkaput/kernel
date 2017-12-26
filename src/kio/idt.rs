@@ -134,8 +134,8 @@ extern "x86-interrupt" fn page_fault_handler(
     error_code: PageFaultErrorCode,
 ) {
     print_exception_ex("PAGE FAULT", || {
-        kprintln!("Error code: {:#?}", error_code);
-        kprintln!("{:#?}", stack_frame);
+        println!("Error code: {:#?}", error_code);
+        println!("{:#?}", stack_frame);
     });
     loop {}
 }
@@ -147,7 +147,7 @@ extern "x86-interrupt" fn machine_check_handler(stack_frame: &mut ExceptionStack
 
 fn print_exception(name: &str, stack_frame: &ExceptionStackFrame) {
     print_exception_ex(name, || {
-        kprintln!("{:#?}", stack_frame);
+        println!("{:#?}", stack_frame);
     });
 }
 
@@ -162,12 +162,12 @@ fn print_exception_ex(name: &str, info_provider: impl FnOnce()) {
         background: TextColor::Black,
     };
 
-    kprintln!();
+    println!();
 
     kio::with_output_style(header, || {
-        kprintln!("=== EXCEPTION: {} ===", name);
+        println!("=== EXCEPTION: {} ===", name);
     });
     kio::with_output_style(info, info_provider);
 
-    kprintln!();
+    println!();
 }

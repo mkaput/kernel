@@ -1,7 +1,7 @@
 /// Macro for printing to current kernel output serial device. This is the
 /// preferred way for doing kernel logging.
 ///
-/// Equivalent to the [`kprintln!`] macro except that a newline is not printed at
+/// Equivalent to the [`println!`] macro except that a newline is not printed at
 /// the end of the message.
 ///
 /// Note that kernel logging output is sometimes line-buffered by default and
@@ -10,7 +10,7 @@
 ///
 /// Use the `format!` syntax to write data to the standard output.
 ///
-/// [`kprintln!`]: ./macro.kprintln.html
+/// [`println!`]: ./macro.println.html
 ///
 /// # Panics
 ///
@@ -19,19 +19,19 @@
 /// # Examples
 ///
 /// ```
-/// kprint!("this ");
-/// kprint!("will ");
-/// kprint!("be ");
-/// kprint!("on ");
-/// kprint!("the ");
-/// kprint!("same ");
-/// kprint!("line ");
+/// print!("this ");
+/// print!("will ");
+/// print!("be ");
+/// print!("on ");
+/// print!("the ");
+/// print!("same ");
+/// print!("line ");
 ///
-/// kprint!("this string has a newline, why not choose println! instead?\n");
+/// print!("this string has a newline, why not choose println! instead?\n");
 /// ```
 #[macro_export]
-macro_rules! kprint {
-    ($($arg:tt)*) => ($crate::kio::_kprint(format_args!($($arg)*)));
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::kio::_print(format_args!($($arg)*)));
 }
 
 /// Macro for printing to current kernel output serial device, with a newline. This is the
@@ -49,13 +49,13 @@ macro_rules! kprint {
 /// # Examples
 ///
 /// ```
-/// kprintln!(); // prints just a newline
-/// kprintln!("hello there!");
-/// kprintln!("format {} arguments", "some");
+/// println!(); // prints just a newline
+/// println!("hello there!");
+/// println!("format {} arguments", "some");
 /// ```
 #[macro_export]
-macro_rules! kprintln {
-    () => (kprint!("\n"));
-    ($fmt:expr) => (kprint!(concat!($fmt, "\n")));
-    ($fmt:expr, $($arg:tt)*) => (kprint!(concat!($fmt, "\n"), $($arg)*));
+macro_rules! println {
+    () => (print!("\n"));
+    ($fmt:expr) => (print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
 }

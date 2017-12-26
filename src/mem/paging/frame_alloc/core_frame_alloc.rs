@@ -85,7 +85,7 @@ impl FrameAlloc for CoreFrameAlloc {
 
     fn dealloc(&mut self, _frame: Frame) {
         // TODO: Reusing frames
-        kprintln!("FRAME DEALLOCATING NOT IMPLEMENTED YET");
+        println!("FRAME DEALLOCATING NOT IMPLEMENTED YET");
     }
 }
 

@@ -13,13 +13,13 @@ use dev::output_serial::OutputSerial;
 use drv::gfx::vga::text_buffer::VGA_TEXT_VIDEO;
 
 /// Performs early initialization of KIO subsystem, setting up
-/// so called *early console* which enables usage of [`kprintln!`] family macros.
+/// so called *early console* which enables usage of [`println!`] family macros.
 ///
 /// No other subsystem is required to be initialized yet.
 ///
 /// **This function should only be called once.**
 ///
-/// [`kprintln!`]: ./macro.kprintln.html
+/// [`println!`]: ./macro.println.html
 pub unsafe fn early_init() {
     {
         let mut video = VGA_TEXT_VIDEO.lock();
@@ -27,7 +27,7 @@ pub unsafe fn early_init() {
         video.clear();
     }
 
-    kprintln!("early console works");
+    println!("early console works");
 }
 
 /// Temporarily applies text style to current kernel output device.
@@ -43,8 +43,8 @@ pub unsafe fn early_init() {
 /// let red = TextStyle { foreground: TextColor::Red, background: TextColor::Black };
 ///
 /// with_output_style(red, || {
-///     kprintln!("PANIC in {}:{}", file, line);
-///     kprintln!("  {}", fmt);
+///     println!("PANIC in {}:{}", file, line);
+///     println!("  {}", fmt);
 /// });
 /// ```
 pub fn with_output_style(text_style: TextStyle, f: impl FnOnce()) {
@@ -64,7 +64,7 @@ pub fn with_output_style(text_style: TextStyle, f: impl FnOnce()) {
 }
 
 #[doc(hidden)]
-pub fn _kprint(args: fmt::Arguments) {
+pub fn _print(args: fmt::Arguments) {
     VGA_TEXT_VIDEO
         .lock()
         .writer()

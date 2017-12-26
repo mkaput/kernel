@@ -47,7 +47,7 @@ pub fn remap_kernel(
     };
 
     active_table.with(&mut new_table, &mut tmp_page, |mapper| {
-        kprintln!("mapping sections:");
+        println!("mapping sections:");
 
         let elf_sections_tag = boot_info
             .elf_sections_tag()
@@ -73,7 +73,7 @@ pub fn remap_kernel(
             let end_frame = Frame::containing_address(section.end_address() - 1);
 
             let section_name = string_table.section_name(section);
-            kprintln!(
+            println!(
                 "  {:-16} {:#x}-{:#x}",
                 section_name,
                 start_frame.start_address(),
@@ -87,7 +87,7 @@ pub fn remap_kernel(
 
         // Identity map VGA text buffer
         let vga_buffer_frame = Frame::containing_address(VGA_TEXT_BUFFER_ADDR);
-        kprintln!(
+        println!(
             "  VGA text buffer  {:#x}-{:#x}",
             vga_buffer_frame.start_address(),
             vga_buffer_frame.end_address()
@@ -97,7 +97,7 @@ pub fn remap_kernel(
         // Identity map Multiboot info
         let multiboot_start = Frame::containing_address(boot_info.start_address());
         let multiboot_end = Frame::containing_address(boot_info.end_address() - 1);
-        kprintln!(
+        println!(
             "  Boot info        {:#x}-{:#x}",
             multiboot_start.start_address(),
             multiboot_end.end_address()
@@ -111,7 +111,7 @@ pub fn remap_kernel(
     let old_p4_page = Page::containing_address(old_table.p4_frame.start_address());
     active_table.unmap(old_p4_page, allocator);
 
-    kprintln!("remapped kernel successfully");
+    println!("remapped kernel successfully");
 
     active_table
 }

@@ -31,9 +31,11 @@ extern crate x86_64;
 
 #[macro_use]
 pub mod kio;
+
 pub mod dev;
 pub mod drv;
 pub mod mem;
+pub mod shell;
 
 use linked_list_allocator::LockedHeap;
 
@@ -70,6 +72,12 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
     }
 
     // ATTENTION: now everything is fine
+
+    unsafe {
+        drv::hid::atkbd::init();
+    }
+
+    shell::start();
 
     unreachable!();
 }

@@ -72,8 +72,6 @@ pub unsafe fn register_interrupt(int: u8, handler: HandlerFunc) {
     } else {
         panic!("IDT have not been initialized yet");
     }
-
-    println!("Registered handler for INT{}", int);
 }
 
 fn load_idt() {

@@ -66,11 +66,10 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
     unsafe {
         mem::init(boot_info);
         kio::idt::init();
+        kio::pic::init();
     }
 
     // ATTENTION: now everything is fine
-
-    x86_64::instructions::interrupts::int3();
 
     unreachable!();
 }

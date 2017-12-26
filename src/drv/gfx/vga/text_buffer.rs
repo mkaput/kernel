@@ -12,6 +12,18 @@ use kio::port::Port;
 
 pub const VGA_TEXT_BUFFER_ADDR: usize = 0xb8000;
 
+/// 6845 index register, selects which register [0-11h]
+/// is to be accessed through port 3B5/3D5
+const CMD_PORT: Port<u8> = unsafe { Port::new(0x3d4) };
+
+/// 6845 data register [0-11h] selected by port 3B4/3D4,
+/// registers 0C-0F may be read.  If a read occurs without the
+/// adapter installed, FFh is returned.
+const DATA_PORT: Port<u8> = unsafe { Port::new(0x3d5) };
+
+/// TODO: What's this?
+const WAT_PORT: Port<u8> = unsafe { Port::new(0x3e0) };
+
 /// Represents single VGA color
 #[allow(dead_code)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -204,26 +216,17 @@ impl VgaTextVideo {
     fn update_cursor(&mut self) {
         let pos = (self.cursor.row * SCREEN_WIDTH + self.cursor.col) as u16;
 
-        // 6845 index register, selects which register [0-11h]
-        // is to be accessed through port 3B5/3D5
-        let mut idx = unsafe { Port::<u8>::new(0x3d4) };
-
-        // 6845 data register [0-11h] selected by port 3B4/3D4,
-        // registers 0C-0F may be read.  If a read occurs without the
-        // adapter installed, FFh is returned.
-        let mut dat = unsafe { Port::<u8>::new(0x3d5) };
-
         // Select "Cursor address (LSB)" register
-        idx.write(0x0f);
+        CMD_PORT.write(0x0f);
 
         // Write least significant byte of cursor position
-        dat.write((pos & 0xff) as u8);
+        DATA_PORT.write((pos & 0xff) as u8);
 
         // Select "Cursor address (MSB) register
-        idx.write(0x0e);
+        CMD_PORT.write(0x0e);
 
         // Write most significant byte of cursor position
-        dat.write(((pos >> 8) & 0xff) as u8);
+        DATA_PORT.write(((pos >> 8) & 0xff) as u8);
     }
 }
 
@@ -253,46 +256,25 @@ impl TextVideo for VgaTextVideo {
     fn enable_cursor(&mut self) {
         self.cursor = Cursor::zero();
 
-        // 6845 index register, selects which register [0-11h]
-        // is to be accessed through port 3B5/3D5
-        let mut idx = unsafe { Port::<u8>::new(0x3d4) };
-
-        // 6845 data register [0-11h] selected by port 3B4/3D4,
-        // registers 0C-0F may be read.  If a read occurs without the
-        // adapter installed, FFh is returned.
-        let mut dat = unsafe { Port::<u8>::new(0x3d5) };
-
-        // TODO: What's this?
-        let mut wat = unsafe { Port::<u8>::new(0x3e0) };
-
         // Select "Cursor start (scan line)" register
-        idx.write(0x0a);
+        CMD_PORT.write(0x0a);
 
-        let scan_line_start = (dat.read() & 0xc0) | 14;
-        dat.write(scan_line_start);
+        let scan_line_start = (DATA_PORT.read() & 0xc0) | 14;
+        DATA_PORT.write(scan_line_start);
 
         // Select "Cursor end (scan line)" register
-        idx.write(0x0b);
+        CMD_PORT.write(0x0b);
 
-        let scan_line_end = (wat.read() & 0xe0) | 15;
-        dat.write(scan_line_end);
+        let scan_line_end = (WAT_PORT.read() & 0xe0) | 15;
+        DATA_PORT.write(scan_line_end);
     }
 
     fn disable_cursor(&mut self) {
-        // 6845 index register, selects which register [0-11h]
-        // is to be accessed through port 3B5/3D5
-        let mut idx = unsafe { Port::<u8>::new(0x3d4) };
-
-        // 6845 data register [0-11h] selected by port 3B4/3D4,
-        // registers 0C-0F may be read.  If a read occurs without the
-        // adapter installed, FFh is returned.
-        let mut dat = unsafe { Port::<u8>::new(0x3d5) };
-
         // Select "Cursor start (scan line)" register
-        idx.write(0x0a);
+        CMD_PORT.write(0x0a);
 
         // Disable cursor (bit 5)
-        dat.write(0b0010_0000);
+        DATA_PORT.write(0b0010_0000);
     }
 
     fn cursor(&self) -> Cursor {

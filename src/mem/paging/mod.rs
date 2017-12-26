@@ -111,7 +111,5 @@ pub fn remap_kernel(
     let old_p4_page = Page::containing_address(old_table.p4_frame.start_address());
     active_table.unmap(old_p4_page, allocator);
 
-    println!("remapped kernel successfully");
-
     active_table
 }

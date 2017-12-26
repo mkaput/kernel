@@ -16,6 +16,7 @@ use self::stack::{Stack, StackAllocator};
 
 pub(super) const HEAP_START: usize = 0o_000_004_000_000_0000;
 pub(super) const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
+pub(super) const HEAP_END: usize = HEAP_START + HEAP_SIZE - 1;
 
 const STACK_PAGES: usize = 100;
 
@@ -66,13 +67,19 @@ pub unsafe fn init(boot_info: &BootInformation) {
     let mut active_table = remap_kernel(&mut frame_alloc, boot_info);
 
     let heap_start_page = Page::containing_address(HEAP_START);
-    let heap_end_page = Page::containing_address(HEAP_START + HEAP_SIZE - 1);
+    let heap_end_page = Page::containing_address(HEAP_END);
 
     for page in Page::range_inclusive(heap_start_page, heap_end_page) {
         active_table.map(page, paging::EntryFlags::WRITABLE, &mut frame_alloc);
     }
 
     HEAP_ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE);
+
+    println!(
+        "  Kernel heap      {:#x}-{:#x}",
+        heap_start_page.start_address(),
+        heap_end_page.end_address()
+    );
 
     let stack_start_page = heap_end_page + 1;
     let stack_end_page = stack_start_page + STACK_PAGES;

@@ -2,11 +2,18 @@ use x86_64::structures::idt::ExceptionStackFrame;
 
 use kio::idt::register_interrupt;
 use kio::pic;
+use kio::port::UnsafePort;
+
+const IRQ: u8 = 33;
+
+const CMD_PORT: UnsafePort<u8> = unsafe { UnsafePort::new(0x64) };
+const DATA_PORT: UnsafePort<u8> = unsafe { UnsafePort::new(0x60) };
 
 pub unsafe fn init() {
-    register_interrupt(33, handle_irq);
+    register_interrupt(IRQ, handle_irq);
 }
 
-extern "x86-interrupt" fn handle_irq(stack_frame: &mut ExceptionStackFrame) {
+extern "x86-interrupt" fn handle_irq(_stack_frame: &mut ExceptionStackFrame) {
     println!("got key");
+    unsafe { pic::eoi(IRQ); }
 }

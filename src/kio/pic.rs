@@ -63,10 +63,6 @@ const ICW4_SFNM: u8 = 0x10;
 ///
 /// **IDT is required to be initialized.**
 pub unsafe fn init() {
-    // Save IMRs
-    let mmask = MASTER_DATA.read();
-    let smask = SLAVE_DATA.read();
-
     // Tell each PIC that we're going to send it a three-byte
     // initialization sequence on its data port.
     MASTER_CMD.write(ICW1_INIT + ICW1_ICW4);
@@ -92,9 +88,11 @@ pub unsafe fn init() {
     SLAVE_DATA.write(ICW4_8086);
     io_wait();
 
-    // Restore IMRs
-    SLAVE_DATA.write(smask);
-    MASTER_DATA.write(mmask);
+    // Clear IMRs
+    MASTER_DATA.write(0);
+    io_wait();
+    SLAVE_DATA.write(0);
+    io_wait();
 }
 
 /// Notifies end of interrupt

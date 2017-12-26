@@ -3,9 +3,8 @@
 use core::mem;
 
 use spin::{Mutex, Once};
+use x86_64;
 use x86_64::VirtualAddress;
-use x86_64::instructions::segmentation::set_cs;
-use x86_64::instructions::tables::load_tss;
 use x86_64::structures::gdt::SegmentSelector;
 use x86_64::structures::idt::{ExceptionStackFrame, HandlerFunc, Idt, PageFaultErrorCode};
 use x86_64::structures::tss::TaskStateSegment;
@@ -53,10 +52,10 @@ pub unsafe fn init() {
 
     gdt.load();
 
-    set_cs(code_selector);
-    load_tss(tss_selector);
+    x86_64::instructions::segmentation::set_cs(code_selector);
+    x86_64::instructions::tables::load_tss(tss_selector);
 
-    load_idt()
+    load_idt();
 }
 
 /// Registers handler function for custom interrupts (INTn >= 32)
@@ -72,6 +71,14 @@ pub unsafe fn register_interrupt(int: u8, handler: HandlerFunc) {
     } else {
         panic!("IDT have not been initialized yet");
     }
+}
+
+pub unsafe fn enable() {
+    x86_64::instructions::interrupts::enable();
+}
+
+pub unsafe fn disable() {
+    x86_64::instructions::interrupts::disable();
 }
 
 fn load_idt() {
@@ -128,6 +135,10 @@ fn create_idt() -> Idt {
     // TODO: Virtualization
     // TODO: Security Exception
 
+    for irq in idt.interrupts.iter_mut() {
+        irq.set_handler_fn(default_handler);
+    }
+
     idt
 }
 
@@ -173,6 +184,8 @@ extern "x86-interrupt" fn machine_check_handler(stack_frame: &mut ExceptionStack
     print_exception("OOPS MACHINE CHECK", stack_frame);
     loop {}
 }
+
+extern "x86-interrupt" fn default_handler(_stack_frame: &mut ExceptionStackFrame) {}
 
 fn print_exception(name: &str, stack_frame: &ExceptionStackFrame) {
     print_exception_ex(name, || {

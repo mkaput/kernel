@@ -2,13 +2,12 @@
 
 use core::mem;
 
-use lazy_static;
-use spin::{Once, Mutex};
+use spin::{Mutex, Once};
 use x86_64::VirtualAddress;
 use x86_64::instructions::segmentation::set_cs;
 use x86_64::instructions::tables::load_tss;
 use x86_64::structures::gdt::SegmentSelector;
-use x86_64::structures::idt::{ExceptionStackFrame, Idt, PageFaultErrorCode, HandlerFunc};
+use x86_64::structures::idt::{ExceptionStackFrame, HandlerFunc, Idt, PageFaultErrorCode};
 use x86_64::structures::tss::TaskStateSegment;
 
 use dev::text_video::{TextColor, TextStyle};
@@ -19,9 +18,7 @@ use mem::gdt::{self, Gdt};
 const DOUBLE_FAULT_IST_INDEX: usize = 0;
 const MACHINE_CHECK_IST_INDEX: usize = 1;
 
-lazy_static! {
-    static ref IDT: Mutex<Idt> = Mutex::new(create_idt());
-}
+static IDT: Mutex<Option<Idt>> = Mutex::new(None);
 
 static GDT: Once<Gdt> = Once::new();
 static TSS: Once<TaskStateSegment> = Once::new();
@@ -34,7 +31,7 @@ static TSS: Once<TaskStateSegment> = Once::new();
 ///
 /// [`init_ist`]: ./fn.init_ist.html
 pub unsafe fn init() {
-    lazy_static::initialize(&IDT);
+    *(IDT.lock()) = Some(create_idt());
 
     let double_fault_stack =
         alloc_stack(1).expect("could not allocate double fault interrupt handler stack");
@@ -59,28 +56,36 @@ pub unsafe fn init() {
     set_cs(code_selector);
     load_tss(tss_selector);
 
-    load_idt();
+    load_idt()
 }
 
 /// Registers handler function for custom interrupts (INTn >= 32)
+///
+/// **IDT has to be initialized before calling this function.**
 pub unsafe fn register_interrupt(int: u8, handler: HandlerFunc) {
     assert!(32 <= int);
 
-    if let Some(ref mut idt) = IDT.try_lock() {
+    let mut idt_lock = IDT.lock();
+    let x = &mut *idt_lock;
+    if let &mut Some(ref mut idt) = x {
         idt[int as usize].set_handler_fn(handler);
     } else {
-        panic!("IDT not set up!");
+        panic!("IDT have not been initialized yet");
     }
 
     println!("Registered handler for INT{}", int);
 }
 
-/// Force Rust to assume that IDT has static lifetime and load it.
 fn load_idt() {
-    let idt_lock = IDT.lock();
-    let idt = &*idt_lock;
-    let static_idt: &'static Idt = unsafe { mem::transmute(idt) };
-    static_idt.load();
+    // WTF
+    let mut idt_lock = IDT.lock();
+    let x = &mut *idt_lock;
+    let y: &'static mut Option<Idt> = unsafe { mem::transmute(x) };
+    if let &mut Some(ref mut idt) = y {
+        idt.load();
+    } else {
+        unreachable!();
+    }
 }
 
 fn create_idt() -> Idt {

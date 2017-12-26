@@ -12,6 +12,8 @@
 #![feature(universal_impl_trait)]
 #![feature(nll)]
 #![no_std]
+// Workaround rust-lang/rust#46959
+#![allow(bad_style)]
 
 extern crate alloc;
 extern crate bit_field;
@@ -68,7 +70,7 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
     // ATTENTION: now everything is fine
 
-//    x86_64::instructions::interrupts::int3();
+    x86_64::instructions::interrupts::int3();
 
     unreachable!();
 }

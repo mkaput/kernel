@@ -10,12 +10,15 @@
 #![feature(lang_items)]
 #![feature(unique)]
 #![feature(universal_impl_trait)]
+#![feature(nll)]
 #![no_std]
 
 extern crate alloc;
 extern crate bit_field;
 #[macro_use]
 extern crate bitflags;
+#[macro_use]
+extern crate lazy_static;
 extern crate linked_list_allocator;
 // FIXME: this crate is multiboot2 1.6 compliant while we use 2.0
 extern crate multiboot2;
@@ -65,7 +68,7 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
     // ATTENTION: now everything is fine
 
-    x86_64::instructions::interrupts::int3();
+//    x86_64::instructions::interrupts::int3();
 
     unreachable!();
 }

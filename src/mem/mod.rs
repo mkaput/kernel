@@ -19,6 +19,7 @@ pub(super) const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
 
 const STACK_PAGES: usize = 100;
 
+// FIXME: Get rid of these static muts
 static mut FRAME_ALLOC: Option<CoreFrameAlloc> = None;
 static mut ACTIVE_PAGE_TABLE: Option<ActivePageTable> = None;
 static mut STACK_ALLOCATOR: Option<StackAllocator> = None;

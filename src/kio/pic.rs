@@ -97,13 +97,42 @@ pub unsafe fn init() {
 
 /// Notifies end of interrupt
 pub unsafe fn eoi(irq: u8) {
-    assert!(MASTER_OFFSET <= irq && irq < SLAVE_OFFSET + 8, "unsupported IRQ number");
+    assert!(valid_irq(irq));
 
     if irq >= SLAVE_OFFSET {
         SLAVE_CMD.write(PIC_EOI);
     }
 
     MASTER_CMD.write(PIC_EOI);
+}
+
+/// Sets mask of IRQ in IMR
+pub unsafe fn mask(irq: u8) {
+    assert!(valid_irq(irq));
+    let (port, irqline) = get_data_port_and_irqline(irq);
+    let val = port.read() | (1 << irqline);
+    port.write(val);
+}
+
+/// Clears mask of IRQ in IMR
+pub unsafe fn unmask(irq: u8) {
+    assert!(valid_irq(irq));
+    let (port, irqline) = get_data_port_and_irqline(irq);
+    let val = port.read() & !(1 << irqline);
+    port.write(val);
+}
+
+#[inline]
+const fn valid_irq(irq: u8) -> bool {
+    MASTER_OFFSET <= irq && irq < SLAVE_OFFSET + 8
+}
+
+fn get_data_port_and_irqline(irq: u8) -> (UnsafePort<u8>, u8) {
+    if irq >= SLAVE_OFFSET {
+        (SLAVE_DATA, irq - SLAVE_OFFSET)
+    } else {
+        (MASTER_DATA, irq - MASTER_OFFSET)
+    }
 }
 
 #[inline]

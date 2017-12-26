@@ -73,7 +73,7 @@ impl InOut for u32 {
 /// This version of `Port` has safe `read` and `write` functions, and it's
 /// appropriate for communicating with hardware that can't violate Rust's
 /// safety guarantees.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Port<T: InOut> {
     // Port address.
     port: u16,
@@ -113,7 +113,7 @@ impl<T: InOut> Port<T> {
 /// This version of `Port` has unsafe `read` and `write` functions, and
 /// it's appropriate for speaking to hardware that can potentially corrupt
 /// memory or cause undefined behavior.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct UnsafePort<T: InOut> {
     port: u16,
     ty: PhantomData<T>,

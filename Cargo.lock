@@ -19,11 +19,17 @@ version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "hashmap_core"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "kernel"
 version = "0.1.0"
 dependencies = [
  "bit_field 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bitflags 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "hashmap_core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "linked_list_allocator 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "multiboot2 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -85,6 +91,7 @@ dependencies = [
 "checksum bit_field 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ed8765909f9009617974ab6b7d332625b320b33c326b1e9321382ef1999b5d56"
 "checksum bitflags 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8dead7461c1127cf637931a1e50934eb6eee8bff2f74433ac7909e9afcee04a3"
 "checksum bitflags 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b3c30d3802dfb7281680d6285f2ccdaa8c2d8fee41f93805dba5c4cf50dc23cf"
+"checksum hashmap_core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "e1d87f2a3739d904668679f47e6ef3009c8b1a26cc90eb2191ee3b0bd1fa90f2"
 "checksum lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c8f31047daa365f19be14b47c29df4f7c3b581832407daabe6ae77397619237d"
 "checksum linked_list_allocator 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "1d9b8a68289fdacb7242a519f3cf181a3394ebed3bd092ee07ffa2e5c2088afd"
 "checksum multiboot2 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dcea5906310f2607ea39a42b8af0745dc487d7583db9d981142a63b538647f69"

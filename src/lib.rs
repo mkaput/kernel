@@ -2,23 +2,26 @@
 #![feature(alloc)]
 #![feature(allocator_api)]
 #![feature(asm)]
+#![feature(box_syntax)]
 #![feature(const_atomic_usize_new)]
 #![feature(const_fn)]
 #![feature(const_unique_new)]
 #![feature(const_unsafe_cell_new)]
 #![feature(global_allocator)]
 #![feature(lang_items)]
+#![feature(nll)]
 #![feature(unique)]
 #![feature(universal_impl_trait)]
-#![feature(nll)]
 #![no_std]
 // Workaround rust-lang/rust#46959
 #![allow(bad_style)]
 
+#[macro_use]
 extern crate alloc;
 extern crate bit_field;
 #[macro_use]
 extern crate bitflags;
+extern crate hashmap_core;
 #[macro_use]
 extern crate lazy_static;
 extern crate linked_list_allocator;
@@ -74,9 +77,9 @@ pub extern "C" fn krnl_main(mb_info_addr: usize) {
 
     // ATTENTION: now everything is fine
 
-    unsafe {
-        drv::hid::atkbd::init();
-    }
+    dev::mgr::init();
+
+    drv::hid::atkbd::init();
 
     shell::start();
 

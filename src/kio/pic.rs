@@ -89,9 +89,9 @@ pub unsafe fn init() {
     io_wait();
 
     // Clear IMRs
-    MASTER_DATA.write(0);
+    MASTER_DATA.write(0b1111_1011);
     io_wait();
-    SLAVE_DATA.write(0);
+    SLAVE_DATA.write(0b1111_1011);
     io_wait();
 }
 
@@ -106,24 +106,23 @@ pub unsafe fn eoi(irq: u8) {
     MASTER_CMD.write(PIC_EOI);
 }
 
-/// Sets mask of IRQ in IMR
-pub unsafe fn mask(irq: u8) {
+/// Clears mask of IRQ in IMR (enables)
+pub unsafe fn enable(irq: u8) {
     assert!(valid_irq(irq));
     let (port, irqline) = get_data_port_and_irqline(irq);
-    let val = port.read() | (1 << irqline);
+    let val = port.read() & !(1u8 << irqline);
     port.write(val);
 }
 
-/// Clears mask of IRQ in IMR
-pub unsafe fn unmask(irq: u8) {
+/// Sets mask of IRQ in IMR (disables)
+pub unsafe fn disable(irq: u8) {
     assert!(valid_irq(irq));
     let (port, irqline) = get_data_port_and_irqline(irq);
-    let val = port.read() & !(1 << irqline);
+    let val = port.read() | (1u8 << irqline);
     port.write(val);
 }
 
-#[inline]
-const fn valid_irq(irq: u8) -> bool {
+fn valid_irq(irq: u8) -> bool {
     MASTER_OFFSET <= irq && irq < SLAVE_OFFSET + 8
 }
 

@@ -1,6 +1,6 @@
 //! Device manager subsystem
 
-use alloc::{Vec, BTreeMap, String};
+use alloc::{BTreeMap, String, Vec};
 use alloc::boxed::Box;
 use alloc::arc::Arc;
 use core::mem;

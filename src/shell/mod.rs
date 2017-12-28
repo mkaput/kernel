@@ -78,7 +78,7 @@ fn exec(cmd: &[u8]) {
             for dev in all.iter() {
                 println!("{}", dev.name());
             }
-        },
+        }
         _ => {
             println!("unknown command");
         }

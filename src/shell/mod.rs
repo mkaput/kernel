@@ -1,3 +1,5 @@
+mod calc;
+
 use alloc::Vec;
 
 use dev;
@@ -7,6 +9,11 @@ use kio;
 
 const PROMPT_STYLE: TextStyle = TextStyle {
     foreground: TextColor::White,
+    background: TextColor::Black,
+};
+
+const ERROR_STYLE: TextStyle = TextStyle {
+    foreground: TextColor::LightRed,
     background: TextColor::Black,
 };
 
@@ -79,8 +86,14 @@ fn exec(cmd: &[u8]) {
                 println!("{}", dev.name());
             }
         }
-        _ => {
-            println!("unknown command");
-        }
+
+        expr => match calc::eval(expr) {
+            Ok(result) => println!("{}", result),
+            Err(error) => {
+                kio::with_output_style(ERROR_STYLE, || {
+                    println!("error: {}", error);
+                });
+            }
+        },
     }
 }

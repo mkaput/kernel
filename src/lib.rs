@@ -9,6 +9,7 @@
 #![feature(const_unsafe_cell_new)]
 #![feature(global_allocator)]
 #![feature(lang_items)]
+#![feature(slice_patterns)]
 #![feature(unique)]
 #![feature(universal_impl_trait)]
 #![no_std]

@@ -55,22 +55,29 @@ pub fn parse_device_name(name: &str) -> Option<(&str, usize)> {
 pub struct CommonDevice {
     class: &'static str,
     id: usize,
+    dev: Box<u8>
 }
 
 impl CommonDevice {
     fn new<D: Device>(dev: Box<D>) -> CommonDevice {
-        unimplemented!()
+        let class = D::CLASS_NAME;
+        let id = usize::max_value();
+        // FIXME: Handle Drop
+        let dev: Box<u8> = unsafe { mem::transmute(dev) };
+        CommonDevice { class, id, dev }
     }
 
     pub fn downcast<D: Device>(&self) -> &D {
         match self.try_downcast() {
             Some(dev) => dev,
-            None => panic!("wrong device class: got {}, expected {}", self.class, D::TYPE_NAME),
+            None => panic!("wrong device class: got {}, expected {}", self.class, D::CLASS_NAME),
         }
     }
 
     pub fn try_downcast<D: Device>(&self) -> Option<&D> {
-        unimplemented!()
+        if self.class != D::CLASS_NAME { return None; }
+        let dev: &D = unsafe { mem::transmute(&self.dev) };
+        Some(&dev)
     }
 
     pub fn class(&self) -> &'static str { self.class }
@@ -133,7 +140,7 @@ impl DeviceClassEntry {
 
         let dev_name = dev.name();
 
-        let r = self.devices.insert(id, unimplemented!());
+        let r = self.devices.insert(id, Arc::new(dev));
         assert!(r.is_none());
 
         println!("dev::mgr: connected device {}", dev_name);

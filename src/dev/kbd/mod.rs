@@ -54,7 +54,7 @@ impl Kbd {
 }
 
 impl Device for Kbd {
-    const TYPE_NAME: &'static str = "kbd";
+    const CLASS_NAME: &'static str = "kbd";
 }
 
 struct KbdInner {
@@ -90,7 +90,6 @@ impl KbdDriverApi {
 
 impl KbdDriverApi {
     pub fn process_key(&mut self, key: KeyCode) {
-        println!("{:?}", key);
         let mut lock = self.kbd.lock();
         lock.push(key);
     }

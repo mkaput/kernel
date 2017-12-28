@@ -8,7 +8,7 @@ pub mod text_video;
 
 /// Devices are required to be externally immutable.
 pub trait Device: Send + Sync {
-    const TYPE_NAME: &'static str;
+    const CLASS_NAME: &'static str;
 }
 
 pub trait Driver<D>: Send + Sync {

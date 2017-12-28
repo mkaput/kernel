@@ -32,9 +32,7 @@ fn do_install(device: CommonDevice) -> DeviceName {
 
 /// Returns already cloned shared reference to device.
 pub fn get_device(name: &str) -> Option<Arc<CommonDevice>> {
-    INSTANCE.read()
-        .get(name)
-        .map(Arc::clone)
+    INSTANCE.read().get(name).map(Arc::clone)
 }
 
 pub fn parse_device_name(name: &str) -> Option<(&str, usize)> {
@@ -55,7 +53,7 @@ pub fn parse_device_name(name: &str) -> Option<(&str, usize)> {
 pub struct CommonDevice {
     class: &'static str,
     id: usize,
-    dev: Box<u8>
+    dev: Box<u8>,
 }
 
 impl CommonDevice {
@@ -70,19 +68,29 @@ impl CommonDevice {
     pub fn downcast<D: Device>(&self) -> &D {
         match self.try_downcast() {
             Some(dev) => dev,
-            None => panic!("wrong device class: got {}, expected {}", self.class, D::CLASS_NAME),
+            None => panic!(
+                "wrong device class: got {}, expected {}",
+                self.class,
+                D::CLASS_NAME
+            ),
         }
     }
 
     pub fn try_downcast<D: Device>(&self) -> Option<&D> {
-        if self.class != D::CLASS_NAME { return None; }
+        if self.class != D::CLASS_NAME {
+            return None;
+        }
         let dev: &D = unsafe { mem::transmute(&*self.dev) };
         Some(&dev)
     }
 
-    pub fn class(&self) -> &'static str { self.class }
+    pub fn class(&self) -> &'static str {
+        self.class
+    }
 
-    pub fn id(&self) -> usize { self.id }
+    pub fn id(&self) -> usize {
+        self.id
+    }
 
     pub fn name(&self) -> DeviceName {
         format!("{}{}", self.class, self.id)

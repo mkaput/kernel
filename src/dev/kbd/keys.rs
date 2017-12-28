@@ -82,10 +82,10 @@ impl From<KeyCode> for u8 {
             POINT_RELEASED => b'.',
             SLASH_RELEASED => b'/',
             ZERO_PRESSED => b'0',
-            key @ ONE_PRESSED ... NINE_PRESSED => _num[key as usize - ONE_PRESSED as usize],
-            key @ 0x10 ... 0x1C => _qwertyuiop[key as usize - 0x10],
-            key @ 0x1e ... 0x26 => _asdfghjkl[key as usize - 0x1e],
-            key @ 0x2c ... 0x32 => _zxcvbnm[key as usize - 0x2c],
+            key @ ONE_PRESSED...NINE_PRESSED => _num[key as usize - ONE_PRESSED as usize],
+            key @ 0x10...0x1C => _qwertyuiop[key as usize - 0x10],
+            key @ 0x1e...0x26 => _asdfghjkl[key as usize - 0x1e],
+            key @ 0x2c...0x32 => _zxcvbnm[key as usize - 0x2c],
             _ => 0,
         }
     }

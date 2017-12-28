@@ -7,49 +7,36 @@ mod keys;
 use alloc::VecDeque;
 use alloc::arc::Arc;
 
-use spin::Mutex;
+use spin::{Mutex, RwLock};
+use x86_64;
 
 use dev::Driver;
 use dev::Device;
 
 pub use self::keys::*;
 
-const BUFFER_SIZE: usize = 256;
-
 /// Keyboard device
 pub struct Kbd {
-    inner: Arc<Mutex<KbdInner>>,
+    inner: Arc<KbdInner>,
 }
 
 impl Kbd {
     pub fn new(driver: &Mutex<Driver<KbdDriverApi>>) -> Kbd {
         let kbd = Kbd {
-            inner: Arc::new(Mutex::new(KbdInner::new())),
+            inner: Arc::new(KbdInner::new()),
         };
 
         {
-            let api = KbdDriverApi::new(kbd.inner.clone());
+            let api = KbdDriverApi::new(&kbd.inner);
             driver.lock().init(api);
         }
 
         kbd
     }
 
-    /// Asynchronously checks if there is key input from keyboard and pulls it,
-    /// or returns `None` if there are not any.
-    pub fn poll(&self) -> Option<KeyCode> {
-        let mut lock = self.inner.lock();
-        lock.poll()
-    }
-
     /// Synchronously waits for key input from keyboard.
     pub fn wait(&self) -> KeyCode {
-        // TODO: Optimize this
-        loop {
-            if let Some(key) = self.poll() {
-                return key;
-            }
-        }
+        self.inner.wait()
     }
 }
 
@@ -58,39 +45,45 @@ impl Device for Kbd {
 }
 
 struct KbdInner {
-    buffer: VecDeque<KeyCode>,
+    buffer: RwLock<VecDeque<KeyCode>>,
 }
 
 impl KbdInner {
     fn new() -> KbdInner {
         KbdInner {
-            buffer: VecDeque::with_capacity(BUFFER_SIZE),
+            buffer: RwLock::new(VecDeque::new()),
         }
     }
 
-    fn poll(&mut self) -> Option<KeyCode> {
-        self.buffer.pop_front()
+    fn wait(&self) -> KeyCode {
+        while self.buffer.read().is_empty() {
+            unsafe {
+                x86_64::instructions::halt();
+            }
+        }
+        self.buffer.write().pop_front().unwrap()
     }
 
-    fn push(&mut self, key: KeyCode) {
-        self.buffer.push_back(key);
+    fn push(&self, key: KeyCode) {
+        self.buffer.write().push_back(key);
     }
 }
+
+unsafe impl Sync for KbdInner {}
 
 /// API for keyboard drivers
 pub struct KbdDriverApi {
-    kbd: Arc<Mutex<KbdInner>>,
+    kbd: Arc<KbdInner>,
 }
 
 impl KbdDriverApi {
-    fn new(kbd: Arc<Mutex<KbdInner>>) -> KbdDriverApi {
-        KbdDriverApi { kbd }
+    fn new(kbd: &Arc<KbdInner>) -> KbdDriverApi {
+        KbdDriverApi { kbd: kbd.clone() }
     }
 }
 
 impl KbdDriverApi {
     pub fn process_key(&mut self, key: KeyCode) {
-        let mut lock = self.kbd.lock();
-        lock.push(key);
+        self.kbd.push(key);
     }
 }

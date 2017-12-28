@@ -55,8 +55,14 @@ fn prompt() -> Vec<u8> {
 
         loop {
             let key: u8 = kbd.wait().into();
-            if key == 0 { continue; }
-            if key == b'\n' { break; }
+            if key == 0 {
+                continue;
+            }
+            if key == b'\n' {
+                println!();
+                break;
+            }
+            print!("{}", key as char);
             line_vec.push(key);
         }
     });

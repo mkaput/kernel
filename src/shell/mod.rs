@@ -1,5 +1,7 @@
-use alloc::String;
+use alloc::Vec;
 
+use dev;
+use dev::kbd::Kbd;
 use dev::text_video::{TextColor, TextStyle};
 use kio;
 
@@ -43,13 +45,21 @@ fn print_header() {
     }
 }
 
-fn prompt() -> String {
+fn prompt() -> Vec<u8> {
+    let kbd_dev = dev::mgr::get_device("kbd0").unwrap();
+    let kbd = kbd_dev.downcast::<Kbd>();
+    let mut line_vec = Vec::new();
+
     kio::with_output_style(PROMPT_STYLE, || {
         print!("> ");
 
-        // TODO:
-        loop {}
+        loop {
+            let key: u8 = kbd.wait().into();
+            if key == 0 { continue; }
+            if key == b'\n' { break; }
+            line_vec.push(key);
+        }
     });
 
-    "".into()
+    line_vec
 }

@@ -6,8 +6,9 @@ pub mod kbd;
 pub mod output_serial;
 pub mod text_video;
 
+/// Devices are required to be externally immutable.
 pub trait Device: Send + Sync {
-    fn type_name(&self) -> &'static str;
+    const TYPE_NAME: &'static str;
 }
 
 pub trait Driver<D>: Send + Sync {

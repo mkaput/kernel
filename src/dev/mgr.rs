@@ -2,6 +2,8 @@
 
 use alloc::{BTreeMap, String};
 use alloc::boxed::Box;
+use alloc::arc::Arc;
+use core::mem;
 
 use hashmap_core::HashMap;
 use lazy_static;
@@ -19,8 +21,65 @@ pub fn init() {
     lazy_static::initialize(&INSTANCE);
 }
 
-pub fn install(device: Box<Device>) -> DeviceName {
+/// Registers new device and manager, and takes ownership of it.
+pub fn install<D: Device>(device: Box<D>) -> DeviceName {
+    do_install(CommonDevice::new(device))
+}
+
+fn do_install(device: CommonDevice) -> DeviceName {
     INSTANCE.write().install(device)
+}
+
+/// Returns already cloned shared reference to device.
+pub fn get_device(name: &str) -> Option<Arc<CommonDevice>> {
+    INSTANCE.read()
+        .get(name)
+        .map(Arc::clone)
+}
+
+pub fn parse_device_name(name: &str) -> Option<(&str, usize)> {
+    for (i, ch) in name.char_indices() {
+        if ch.is_numeric() {
+            let class = unsafe { name.slice_unchecked(0, i) };
+            let id = unsafe { name.slice_unchecked(i, name.len()) }
+                .parse::<usize>()
+                .ok()?;
+            return Some((class, id));
+        }
+    }
+
+    None
+}
+
+/// Proxy for common fields of device structures.
+pub struct CommonDevice {
+    class: &'static str,
+    id: usize,
+}
+
+impl CommonDevice {
+    fn new<D: Device>(dev: Box<D>) -> CommonDevice {
+        unimplemented!()
+    }
+
+    pub fn downcast<D: Device>(&self) -> &D {
+        match self.try_downcast() {
+            Some(dev) => dev,
+            None => panic!("wrong device class: got {}, expected {}", self.class, D::TYPE_NAME),
+        }
+    }
+
+    pub fn try_downcast<D: Device>(&self) -> Option<&D> {
+        unimplemented!()
+    }
+
+    pub fn class(&self) -> &'static str { self.class }
+
+    pub fn id(&self) -> usize { self.id }
+
+    pub fn name(&self) -> DeviceName {
+        format!("{}{}", self.class, self.id)
+    }
 }
 
 struct DeviceManager {
@@ -34,15 +93,26 @@ impl DeviceManager {
         }
     }
 
-    fn install(&mut self, device: Box<Device>) -> DeviceName {
-        self.classes.entry(device.type_name())
+    fn install(&mut self, device: CommonDevice) -> DeviceName {
+        self.classes
+            .entry(device.class())
             .or_insert_with(|| DeviceClassEntry::new())
             .install(device)
+    }
+
+    fn get(&self, name: &str) -> Option<&Arc<CommonDevice>> {
+        let (class, id) = parse_device_name(&name).expect("expected valid device name");
+
+        if let Some(devs) = self.classes.get(class) {
+            devs.get(id)
+        } else {
+            None
+        }
     }
 }
 
 struct DeviceClassEntry {
-    devices: BTreeMap<usize, RwLock<Box<Device>>>,
+    devices: BTreeMap<usize, Arc<CommonDevice>>,
     last_id: usize,
 }
 
@@ -54,17 +124,24 @@ impl DeviceClassEntry {
         }
     }
 
-    fn install(&mut self, device: Box<Device>) -> DeviceName {
+    fn install(&mut self, device: CommonDevice) -> DeviceName {
         let id = self.last_id;
         self.last_id += 1;
 
-        let dev_name = format!("{}{}", device.type_name(), id);
+        let mut dev = device;
+        dev.id = id;
 
-        let r = self.devices.insert(id, RwLock::new(device));
+        let dev_name = dev.name();
+
+        let r = self.devices.insert(id, unimplemented!());
         assert!(r.is_none());
 
         println!("dev::mgr: connected device {}", dev_name);
 
         dev_name
+    }
+
+    fn get(&self, id: usize) -> Option<&Arc<CommonDevice>> {
+        self.devices.get(&id)
     }
 }

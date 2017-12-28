@@ -7,7 +7,7 @@ use kio::idt::register_interrupt;
 use kio::pic;
 use kio::port::UnsafePort;
 use dev::{self, Driver};
-use dev::kbd::{Kbd, KbdDriverApi, KeyCode, KeyState};
+use dev::kbd::{Kbd, KbdDriverApi, KeyCode};
 
 const IRQ: u8 = 33;
 
@@ -55,13 +55,7 @@ fn process_scancode(scancode: u8) {
     atkbd.process_scancode(scancode);
 }
 
-fn parse_scancode(scancode: u8) -> KeyCode {
-    // TODO:
-    KeyCode {
-        char: scancode,
-        state: KeyState::Pressed,
-    }
-}
+fn parse_scancode(scancode: u8) -> KeyCode { KeyCode(scancode) }
 
 extern "x86-interrupt" fn handle_irq(_stack_frame: &mut ExceptionStackFrame) {
     let scancode = unsafe { DATA_PORT.read() };

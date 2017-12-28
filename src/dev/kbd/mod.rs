@@ -2,6 +2,8 @@
 
 extern crate alloc;
 
+mod keys;
+
 use alloc::VecDeque;
 use alloc::arc::Arc;
 
@@ -10,19 +12,9 @@ use spin::Mutex;
 use dev::Driver;
 use dev::Device;
 
+pub use self::keys::*;
+
 const BUFFER_SIZE: usize = 256;
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum KeyState {
-    Pressed,
-    Released,
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub struct KeyCode {
-    pub char: u8,
-    pub state: KeyState,
-}
 
 /// Keyboard device
 pub struct Kbd {
@@ -45,13 +37,13 @@ impl Kbd {
 
     /// Asynchronously checks if there is key input from keyboard and pulls it,
     /// or returns `None` if there are not any.
-    pub fn poll(&mut self) -> Option<KeyCode> {
+    pub fn poll(&self) -> Option<KeyCode> {
         let mut lock = self.inner.lock();
         lock.poll()
     }
 
     /// Synchronously waits for key input from keyboard.
-    pub fn wait(&mut self) -> KeyCode {
+    pub fn wait(&self) -> KeyCode {
         // TODO: Optimize this
         loop {
             if let Some(key) = self.poll() {
@@ -62,9 +54,7 @@ impl Kbd {
 }
 
 impl Device for Kbd {
-    fn type_name(&self) -> &'static str {
-        "kbd"
-    }
+    const TYPE_NAME: &'static str = "kbd";
 }
 
 struct KbdInner {

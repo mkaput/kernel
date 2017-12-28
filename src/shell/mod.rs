@@ -14,7 +14,7 @@ pub fn start() {
     print_header();
     loop {
         let cmd = prompt();
-        println!("{:#?}", cmd);
+        exec(&cmd);
     }
 }
 
@@ -68,4 +68,19 @@ fn prompt() -> Vec<u8> {
     });
 
     line_vec
+}
+
+fn exec(cmd: &[u8]) {
+    match cmd {
+        b"lsdev" => {
+            let mut all = dev::mgr::all();
+            all.sort_unstable_by_key(|d| d.name());
+            for dev in all.iter() {
+                println!("{}", dev.name());
+            }
+        },
+        _ => {
+            println!("unknown command");
+        }
+    }
 }

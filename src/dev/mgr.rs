@@ -1,6 +1,6 @@
 //! Device manager subsystem
 
-use alloc::{BTreeMap, String};
+use alloc::{Vec, BTreeMap, String};
 use alloc::boxed::Box;
 use alloc::arc::Arc;
 use core::mem;
@@ -33,6 +33,10 @@ fn do_install(device: CommonDevice) -> DeviceName {
 /// Returns already cloned shared reference to device.
 pub fn get_device(name: &str) -> Option<Arc<CommonDevice>> {
     INSTANCE.read().get(name).map(Arc::clone)
+}
+
+pub fn all() -> Vec<Arc<CommonDevice>> {
+    INSTANCE.read().all()
 }
 
 pub fn parse_device_name(name: &str) -> Option<(&str, usize)> {
@@ -123,6 +127,14 @@ impl DeviceManager {
         } else {
             None
         }
+    }
+
+    fn all(&self) -> Vec<Arc<CommonDevice>> {
+        self.classes
+            .values()
+            .flat_map(|e| e.devices.values())
+            .map(Arc::clone)
+            .collect()
     }
 }
 

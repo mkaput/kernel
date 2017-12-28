@@ -76,7 +76,7 @@ impl CommonDevice {
 
     pub fn try_downcast<D: Device>(&self) -> Option<&D> {
         if self.class != D::CLASS_NAME { return None; }
-        let dev: &D = unsafe { mem::transmute(&self.dev) };
+        let dev: &D = unsafe { mem::transmute(&*self.dev) };
         Some(&dev)
     }
 

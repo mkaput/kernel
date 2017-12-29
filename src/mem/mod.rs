@@ -31,6 +31,9 @@ static mut STACK_ALLOCATOR: Option<StackAllocator> = None;
 ///
 /// **This function should be called only once.**
 pub unsafe fn init(boot_info: &BootInformation) {
+    enable_nxe_bit();
+    enable_write_protect_bit();
+
     let memory_map_tag = boot_info.memory_map_tag().expect("Memory map tag required");
 
     let reserved_frames = {
@@ -98,4 +101,21 @@ pub unsafe fn alloc_stack(size_in_pages: usize) -> Option<Stack> {
     let active_table = ACTIVE_PAGE_TABLE.as_mut().unwrap();
     let frame_alloc = FRAME_ALLOC.as_mut().unwrap();
     stack_allocator.alloc(active_table, frame_alloc, size_in_pages)
+}
+
+
+fn enable_nxe_bit() {
+    use x86_64::registers::msr::{rdmsr, wrmsr, IA32_EFER};
+
+    let nxe_bit = 1 << 11;
+    unsafe {
+        let efer = rdmsr(IA32_EFER);
+        wrmsr(IA32_EFER, efer | nxe_bit);
+    }
+}
+
+fn enable_write_protect_bit() {
+    use x86_64::registers::control_regs::{Cr0, cr0, cr0_write};
+
+    unsafe { cr0_write(cr0() | Cr0::WRITE_PROTECT) };
 }

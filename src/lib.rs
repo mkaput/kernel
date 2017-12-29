@@ -2,6 +2,7 @@
 #![feature(alloc)]
 #![feature(allocator_api)]
 #![feature(asm)]
+#![feature(box_patterns)]
 #![feature(box_syntax)]
 #![feature(const_atomic_usize_new)]
 #![feature(const_fn)]

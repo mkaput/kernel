@@ -1,0 +1,34 @@
+use alloc::{String, Vec};
+
+use hashmap_core;
+
+use super::ast::*;
+
+#[pub]
+top_exp -> Ast
+        = space* e:exp space* { e }
+exp -> Ast
+        = add_ast
+add_ast -> Ast
+        = e:sum { vecast_to_ast(e, |op, l, r| Ast::OpNode(op, box l, box r)) }
+sum -> (Vec<(Ast, Op)>, Ast)
+        = l:mul_ast space* op:addop space* r:sum { {let (mut x, y) = r; x.push((l, op)); (x, y)} }
+        / e:mul_ast { (Vec::new(), e) }
+addop -> Op
+        = "+" { Op::Add }
+        / "-" { Op::Sub }
+mul_ast -> Ast
+        = e:product { vecast_to_ast(e, |op, l, r| Ast::OpNode(op, box l, box r)) }
+product -> (Vec<(Ast, Op)>, Ast)
+        = l:atom space* op:mulop space* r:product { {let (mut x, y) = r; x.push((l, op)); (x, y)} }
+        / e:atom { (Vec::new(), e) }
+mulop -> Op
+        = "*" { Op::Mul }
+        / "/" { Op::Div }
+atom -> Ast
+        = number
+        / "(" space* v:exp space* ")" { v }
+number -> Ast
+        = mstr:$([0-9]+) { Ast::Num(mstr.into()) }
+space -> ()
+        = " " / "\n" / "\r"
